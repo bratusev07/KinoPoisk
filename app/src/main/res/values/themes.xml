@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.KinoPoisk" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimaryDark">@color/background</item>
+        <item name="hintTextColor">@color/hint</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint">@color/hint</item>
+        <item name="cursorColor">@color/text</item>
+        <item name="boxStrokeColor">@color/box_state</item>
+    </style>
+
+    <style name="Theme.KinoPoisk" parent="Base.Theme.KinoPoisk" />
+</resources>

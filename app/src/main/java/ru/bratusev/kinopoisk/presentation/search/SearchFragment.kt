@@ -1,0 +1,85 @@
+package ru.bratusev.kinopoisk.presentation.search
+
+import android.app.DatePickerDialog
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import ru.bratusev.domain.model.Film
+import ru.bratusev.kinopoisk.R
+import ru.bratusev.kinopoisk.common.NetworkUtils
+
+class SearchFragment : Fragment(), OnItemClickListener {
+
+    private val vm: SearchViewModel by viewModel<SearchViewModel>()
+    private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var textYear: TextView
+    private val filmAdapter = FilmAdapter(arrayListOf(), this)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_search, container, false).also {
+            configureViews(it.rootView)
+            setObservers()
+            NetworkUtils.isInternetAvailable(requireContext())
+            vm.getFilmsRemote()
+        }
+    }
+
+    private fun configureViews(rootView: View) {
+        rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener { vm.logout() }
+        rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener { vm.sortFilms() }
+
+        textYear = rootView.findViewById<TextView>(R.id.yearPicker).also { textView ->
+            textView.setOnClickListener {
+                val datePickerDialog = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
+                    textView.text = selectedYear.toString()
+                }, 2024, 0, 1)
+                vm.pickYear(datePickerDialog)
+            }
+        }
+
+        swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films)
+            .also { it.setOnRefreshListener { vm.getFilmsRemote() } }
+        rootView.findViewById<RecyclerView>(R.id.recycler_films).also {
+            it.layoutManager = LinearLayoutManager(requireContext())
+            it.adapter = filmAdapter
+        }
+    }
+
+    private fun setObservers() {
+        vm.filmList.observe(viewLifecycleOwner) {
+            filmAdapter.setData(it)
+            NetworkUtils.isInternetAvailable(requireContext())
+            swipeRefresh.isRefreshing = false
+        }
+
+        vm.year.observe(viewLifecycleOwner) {
+            textYear.text = it
+        }
+    }
+
+    override fun onItemClick(film: Film) {
+        val bundle = Bundle().apply {
+            putString("banner", film.posterUrl)
+            putString("rating", film.ratingKinopoisk.toString())
+            putString("name", film.name)
+            putInt("kinopoiskId", film.kinopoiskId)
+            putString("genre", film.genre)
+            putString("country", film.country)
+        }
+        findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
+    }
+
+}

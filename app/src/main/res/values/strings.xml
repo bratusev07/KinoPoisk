@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">KinoPoisk</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="login_ru">Войти</string>
+    <string name="description">Описание</string>
+    <string name="frames">Кадры</string>
+    <string name="description_text">Здесь будет описание, если его добавят на KinoPoisk</string>
+    <string name="keyword">Поиск\n</string>
+</resources>
