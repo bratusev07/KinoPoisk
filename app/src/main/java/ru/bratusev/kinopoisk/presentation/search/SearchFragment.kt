@@ -2,6 +2,8 @@ package ru.bratusev.kinopoisk.presentation.search
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.textfield.TextInputEditText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.domain.model.Film
 import ru.bratusev.kinopoisk.R
@@ -46,6 +49,17 @@ class SearchFragment : Fragment(), OnItemClickListener {
             } catch (_: RuntimeException) {
             }
         }
+
+        rootView.findViewById<TextInputEditText>(R.id.input_search).addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                vm.searchFilms(s.toString())
+            }
+        })
+
         rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener { vm.sortFilms() }
 
         textYear = rootView.findViewById<TextView>(R.id.yearPicker).also { textView ->
@@ -58,6 +72,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
         swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films)
             .also { it.setOnRefreshListener { vm.getFilmsRemote() } }
+
         rootView.findViewById<RecyclerView>(R.id.recycler_films).also {
             it.layoutManager = LinearLayoutManager(requireContext())
             it.adapter = filmAdapter

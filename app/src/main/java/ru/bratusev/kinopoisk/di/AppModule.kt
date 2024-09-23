@@ -13,7 +13,10 @@ val appModule = module {
     }
 
     viewModel<SearchViewModel> {
-        SearchViewModel(getFilmsUseCase = get())
+        SearchViewModel(
+            getFilmsUseCase = get(),
+            getFilmByKeywordUseCase = get()
+        )
     }
 
     viewModel<DetailViewModel> {

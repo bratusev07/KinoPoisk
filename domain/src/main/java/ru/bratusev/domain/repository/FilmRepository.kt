@@ -10,8 +10,11 @@ interface FilmRepository {
 
     suspend fun getFilmById(kinopoiskId: Int): FilmDetail
 
-    //suspend fun getFilmByKeyword(keyword: String): Film
-
     suspend fun getFilmFrames(kinopoiskId: Int): ArrayList<Frame>
 
+    suspend fun insertFilmIntoDB(filmEntity: Film): Boolean
+
+    suspend fun getFilmsFromDB(): ArrayList<Film>
+
+    suspend fun getFilmByKeyword(keyword: String): ArrayList<Film>
 }

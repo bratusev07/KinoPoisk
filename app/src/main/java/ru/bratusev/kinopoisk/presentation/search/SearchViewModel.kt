@@ -1,7 +1,5 @@
 package ru.bratusev.kinopoisk.presentation.search
 
-import android.annotation.SuppressLint
-import android.app.DatePickerDialog
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,9 +9,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.Film
+import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
 
-class SearchViewModel(private val getFilmsUseCase: GetFilmsUseCase) : ViewModel() {
+class SearchViewModel(
+    private val getFilmsUseCase: GetFilmsUseCase,
+    private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase
+) : ViewModel() {
 
     private val mutableFilmList = MutableLiveData<ArrayList<Film>>()
     internal val filmList: LiveData<ArrayList<Film>> = mutableFilmList
@@ -24,6 +26,25 @@ class SearchViewModel(private val getFilmsUseCase: GetFilmsUseCase) : ViewModel(
     internal fun getFilmsRemote() {
         getFilmsUseCase.invoke().onEach { result ->
             when (result) {
+                is Resource.Success -> {
+                    Log.d("SearchFragment", "Resource.Success")
+                    mutableFilmList.value = result.data as ArrayList<Film>
+                }
+
+                is Resource.Error -> {
+                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
+                }
+
+                is Resource.Loading -> {
+                    Log.d("SearchFragment", "Resource.Loading")
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    internal fun searchFilms(keyword: String){
+        getFilmByKeywordUseCase.invoke(keyword).onEach { result ->
+            when(result) {
                 is Resource.Success -> {
                     Log.d("SearchFragment", "Resource.Success")
                     mutableFilmList.value = result.data as ArrayList<Film>

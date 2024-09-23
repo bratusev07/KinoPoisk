@@ -2,6 +2,7 @@ package ru.bratusev.kinopoisk.di
 
 import org.koin.dsl.module
 import ru.bratusev.domain.usecase.GetFilmByIdUseCase
+import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
 import ru.bratusev.domain.usecase.LoginUseCase
@@ -22,5 +23,9 @@ val domainModule = module {
 
     factory<GetFramesUseCase> {
         GetFramesUseCase(filmRepository = get())
+    }
+
+    factory<GetFilmByKeywordUseCase> {
+        GetFilmByKeywordUseCase(filmRepository = get())
     }
 }

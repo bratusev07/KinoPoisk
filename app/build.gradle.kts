@@ -56,6 +56,7 @@ dependencies {
     // Koin
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.androidx.room.ktx)
     testImplementation(libs.koin.test)
 
 

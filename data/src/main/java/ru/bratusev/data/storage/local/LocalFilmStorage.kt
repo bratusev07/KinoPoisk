@@ -1,10 +1,12 @@
 package ru.bratusev.data.storage.local
 
-import ru.bratusev.data.model.FilmDTO
+import ru.bratusev.data.model.FilmEntity
 
 interface LocalFilmStorage {
 
-    suspend fun getFilms(): ArrayList<FilmDTO>
+    suspend fun insertFilmIntoDB(filmEntity: FilmEntity): Boolean
 
-    suspend fun getFilmById(kinopiskId: Int): FilmDTO
+    suspend fun getFilmsFromDB(): ArrayList<FilmEntity>
+
+    suspend fun getFilmByKeyword(keyword: String): ArrayList<FilmEntity>
 }

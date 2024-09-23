@@ -1,0 +1,98 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2c2c9b6362a0d0f7993042b15503ecf9",
+    "entities": [
+      {
+        "tableName": "films",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`kinopoiskId` INTEGER NOT NULL, `name` TEXT NOT NULL, `description` TEXT DEFAULT 'нет данных', `webUrl` TEXT DEFAULT 'нет данных', `countries` TEXT NOT NULL, `genres` TEXT NOT NULL, `ratingKinopoisk` REAL NOT NULL, `releaseYear` TEXT NOT NULL, `startYear` TEXT DEFAULT 'нет данных', `endYear` TEXT DEFAULT 'нет данных', `posterUrlPreview` TEXT NOT NULL, PRIMARY KEY(`kinopoiskId`))",
+        "fields": [
+          {
+            "fieldPath": "kinopoiskId",
+            "columnName": "kinopoiskId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "'нет данных'"
+          },
+          {
+            "fieldPath": "webUrl",
+            "columnName": "webUrl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "'нет данных'"
+          },
+          {
+            "fieldPath": "countries",
+            "columnName": "countries",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "genres",
+            "columnName": "genres",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ratingKinopoisk",
+            "columnName": "ratingKinopoisk",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "releaseYear",
+            "columnName": "releaseYear",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startYear",
+            "columnName": "startYear",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "'нет данных'"
+          },
+          {
+            "fieldPath": "endYear",
+            "columnName": "endYear",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "'нет данных'"
+          },
+          {
+            "fieldPath": "posterUrlPreview",
+            "columnName": "posterUrlPreview",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "kinopoiskId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2c2c9b6362a0d0f7993042b15503ecf9')"
+    ]
+  }
+}

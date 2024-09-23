@@ -8,14 +8,13 @@ import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.repository.FilmRepository
 import java.io.IOException
 
-class GetFilmsUseCase(private val filmRepository: FilmRepository) {
+class GetFilmByKeywordUseCase(private val filmRepository: FilmRepository) {
 
-    operator fun invoke(): Flow<Resource<ArrayList<Film>>> = flow {
+    operator fun invoke(keyword: String): Flow<Resource<ArrayList<Film>>> = flow {
         try {
             emit(Resource.Loading())
-            val data = filmRepository.getFilms()
+            val data = filmRepository.getFilmByKeyword(keyword)
             emit(Resource.Success(data))
-            data.forEach { filmRepository.insertFilmIntoDB(it) }
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {
