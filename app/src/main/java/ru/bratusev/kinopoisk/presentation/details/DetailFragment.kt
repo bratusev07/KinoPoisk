@@ -11,7 +11,10 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -92,5 +95,17 @@ class DetailFragment : Fragment() {
             it.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             it.adapter = frameAdapter
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    try {
+                        try {
+                            findNavController().navigate(R.id.action_detailFragment_to_searchFragment)
+                        }catch (_:RuntimeException){ }
+                    }catch (_:RuntimeException){}
+                }
+            })
     }
 }

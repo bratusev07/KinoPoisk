@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,15 +39,20 @@ class SearchFragment : Fragment(), OnItemClickListener {
     }
 
     private fun configureViews(rootView: View) {
-        rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener { vm.logout() }
+        rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener {
+            vm.logout()
+            try {
+                findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
+            } catch (_: RuntimeException) {
+            }
+        }
         rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener { vm.sortFilms() }
 
         textYear = rootView.findViewById<TextView>(R.id.yearPicker).also { textView ->
             textView.setOnClickListener {
-                val datePickerDialog = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
+                DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
                     textView.text = selectedYear.toString()
-                }, 2024, 0, 1)
-                vm.pickYear(datePickerDialog)
+                }, 2024, 1, 1).show()
             }
         }
 
@@ -56,6 +62,17 @@ class SearchFragment : Fragment(), OnItemClickListener {
             it.layoutManager = LinearLayoutManager(requireContext())
             it.adapter = filmAdapter
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    try {
+                        findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
+                    } catch (_: RuntimeException) {
+                    }
+                }
+            })
     }
 
     private fun setObservers() {
@@ -79,7 +96,10 @@ class SearchFragment : Fragment(), OnItemClickListener {
             putString("genre", film.genre)
             putString("country", film.country)
         }
-        findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
+        try {
+            findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
+        } catch (_: RuntimeException) {
+        }
     }
 
 }

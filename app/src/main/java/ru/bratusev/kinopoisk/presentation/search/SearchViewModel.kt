@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.onEach
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.usecase.GetFilmsUseCase
-import java.util.Calendar
 
 class SearchViewModel(private val getFilmsUseCase: GetFilmsUseCase) : ViewModel() {
 
@@ -46,22 +45,5 @@ class SearchViewModel(private val getFilmsUseCase: GetFilmsUseCase) : ViewModel(
     }
 
     internal fun sortFilms() {
-
-    }
-
-    internal fun pickYear(datePickerDialog: DatePickerDialog) {
-        showYearPickerDialog(datePickerDialog)
-    }
-
-    @SuppressLint("NewApi")
-    private fun showYearPickerDialog(datePickerDialog: DatePickerDialog) {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        datePickerDialog.datePicker.init(year, 0, 1, null)
-        datePickerDialog.datePicker.setOnDateChangedListener { _, newYear, _, _ ->
-            datePickerDialog.datePicker.updateDate(newYear, 0, 1)
-            mutableYear.value = newYear.toString()
-        }
-        datePickerDialog.show()
     }
 }

@@ -17,7 +17,7 @@ val domainModule = module {
     }
 
     factory<LoginUseCase> {
-        LoginUseCase()
+        LoginUseCase(userRepository = get())
     }
 
     factory<GetFramesUseCase> {
