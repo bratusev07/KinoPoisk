@@ -10,10 +10,10 @@ import java.io.IOException
 
 class GetFilmsUseCase(private val filmRepository: FilmRepository) {
 
-    operator fun invoke(): Flow<Resource<ArrayList<Film>>> = flow {
+    operator fun invoke(order: String, year: String, page: Int): Flow<Resource<ArrayList<Film>>> = flow {
         try {
             emit(Resource.Loading())
-            val data = filmRepository.getFilms()
+            val data = filmRepository.getFilms(order, year, page)
             emit(Resource.Success(data))
             data.forEach { filmRepository.insertFilmIntoDB(it) }
         } catch (e: HttpException) {

@@ -10,7 +10,11 @@ import ru.bratusev.data.model.FrameData
 interface RetrofitServices {
 
     @GET("films")
-    suspend fun getFilms(): FilmData
+    suspend fun getFilms(
+        @Query("order") order: String,
+        @Query("yearFrom") yearFrom: String,
+        @Query("page") page: Int,
+    ): FilmData
 
     @GET("films/search-by-keyword")
     suspend fun getFilmsByKeyword(@Query("keyword") keyword: String): FilmData

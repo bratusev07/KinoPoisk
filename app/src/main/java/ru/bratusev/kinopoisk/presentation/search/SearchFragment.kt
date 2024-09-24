@@ -28,6 +28,10 @@ class SearchFragment : Fragment(), OnItemClickListener {
     private lateinit var textYear: TextView
     private val filmAdapter = FilmAdapter(arrayListOf(), this)
 
+    private var order: String = "RATING"
+    private var year: String = "1000"
+    private var page: Int = 1
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,45 +41,63 @@ class SearchFragment : Fragment(), OnItemClickListener {
             configureViews(it.rootView)
             setObservers()
             NetworkUtils.isInternetAvailable(requireContext())
-            vm.getFilmsRemote()
+            vm.getFilmsRemote(order, year, page)
         }
     }
 
     private fun configureViews(rootView: View) {
         rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener {
-            vm.logout()
             try {
                 findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
             } catch (_: RuntimeException) {
             }
         }
 
-        rootView.findViewById<TextInputEditText>(R.id.input_search).addTextChangedListener(object: TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        rootView.findViewById<TextInputEditText>(R.id.input_search)
+            .addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    vm.searchFilms(s.toString())
+                }
+            })
 
-            override fun afterTextChanged(s: Editable?) {
-                vm.searchFilms(s.toString())
-            }
-        })
-
-        rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener { vm.sortFilms() }
+        rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener {
+            page = 1
+            order = "RATING"
+            vm.getFilmsRemote(order, year, page, true)
+        }
 
         textYear = rootView.findViewById<TextView>(R.id.yearPicker).also { textView ->
             textView.setOnClickListener {
                 DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
                     textView.text = selectedYear.toString()
+                    order = "YEAR"
+                    year = selectedYear.toString()
+                    page = 1
+                    vm.getFilmsRemote(order, year, page, true)
                 }, 2024, 1, 1).show()
             }
         }
 
-        swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films)
-            .also { it.setOnRefreshListener { vm.getFilmsRemote() } }
+        swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films).also {
+            it.setOnRefreshListener {
+                page = 1
+                vm.getFilmsRemote(order, year, page, true)
+            }
+        }
 
         rootView.findViewById<RecyclerView>(R.id.recycler_films).also {
             it.layoutManager = LinearLayoutManager(requireContext())
             it.adapter = filmAdapter
+            it.addOnScrollListener(onScroll)
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -88,6 +110,16 @@ class SearchFragment : Fragment(), OnItemClickListener {
                     }
                 }
             })
+    }
+
+    private val onScroll = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+            if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
+                vm.getFilmsRemote(order, year, ++page)
+            }
+        }
     }
 
     private fun setObservers() {

@@ -7,8 +7,8 @@ import ru.bratusev.data.storage.remote.common.Common
 
 class RemoteFilmStorageImpl : RemoteFilmStorage {
 
-    override suspend fun getFilmsRemote(): ArrayList<FilmDTO> {
-        return Common.retrofitService.getFilms().items
+    override suspend fun getFilmsRemote(order: String, year: String, page: Int): ArrayList<FilmDTO> {
+        return Common.retrofitService.getFilms(order, year, page).items
     }
 
     override suspend fun getFilmsByKeywordRemote(keyword: String): ArrayList<FilmDTO> {

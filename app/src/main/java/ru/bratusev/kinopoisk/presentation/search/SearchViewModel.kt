@@ -23,8 +23,33 @@ class SearchViewModel(
     private val mutableYear = MutableLiveData<String>()
     internal val year: LiveData<String> = mutableYear
 
-    internal fun getFilmsRemote() {
-        getFilmsUseCase.invoke().onEach { result ->
+    internal fun getFilmsRemote(order: String = "RATING", year: String = "1000", page: Int = 1, needUpdate: Boolean = false) {
+        getFilmsUseCase.invoke(order, year, page).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    Log.d("SearchFragment", "Resource.Success")
+                    if(needUpdate){
+                        mutableFilmList.value = result.data as ArrayList<Film>
+                    }else{
+                        val films = mutableFilmList.value ?: arrayListOf()
+                        films.addAll(result.data as ArrayList<Film>)
+                        mutableFilmList.value = films
+                    }
+                }
+
+                is Resource.Error -> {
+                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
+                }
+
+                is Resource.Loading -> {
+                    Log.d("SearchFragment", "Resource.Loading")
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    internal fun searchFilms(keyword: String) {
+        getFilmByKeywordUseCase.invoke(keyword).onEach { result ->
             when (result) {
                 is Resource.Success -> {
                     Log.d("SearchFragment", "Resource.Success")
@@ -40,31 +65,5 @@ class SearchViewModel(
                 }
             }
         }.launchIn(viewModelScope)
-    }
-
-    internal fun searchFilms(keyword: String){
-        getFilmByKeywordUseCase.invoke(keyword).onEach { result ->
-            when(result) {
-                is Resource.Success -> {
-                    Log.d("SearchFragment", "Resource.Success")
-                    mutableFilmList.value = result.data as ArrayList<Film>
-                }
-
-                is Resource.Error -> {
-                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
-                }
-
-                is Resource.Loading -> {
-                    Log.d("SearchFragment", "Resource.Loading")
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    internal fun logout() {
-
-    }
-
-    internal fun sortFilms() {
     }
 }

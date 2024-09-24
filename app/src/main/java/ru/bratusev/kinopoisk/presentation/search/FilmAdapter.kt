@@ -49,7 +49,7 @@ class FilmAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(value: ArrayList<Film>?) {
-        filmList = (value ?: emptyList()) as ArrayList<Film>
+        filmList = (value ?: arrayListOf())
         notifyDataSetChanged()
     }
 }

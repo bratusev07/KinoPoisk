@@ -6,7 +6,7 @@ import ru.bratusev.domain.model.Frame
 
 interface FilmRepository {
 
-    suspend fun getFilms(): ArrayList<Film>
+    suspend fun getFilms(order: String, year: String, page: Int): ArrayList<Film>
 
     suspend fun getFilmById(kinopoiskId: Int): FilmDetail
 
