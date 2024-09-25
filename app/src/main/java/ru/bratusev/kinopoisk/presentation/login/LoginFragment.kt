@@ -2,7 +2,6 @@ package ru.bratusev.kinopoisk.presentation.login
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,30 +24,41 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false).also {
-            configureViews(it.rootView)
-        }
-    }
-
-    private fun setObservers() {
-        vm.loginState.observe(viewLifecycleOwner) {
-            if (it == true) {
-                try {
-                    findNavController().navigate(R.id.action_loginFragment_to_searchFragment)
-                }catch (_: RuntimeException){ }
-            }
-            else showPasswordErrorAlert()
+        return inflater.inflate(R.layout.fragment_login, container, false).apply {
+            configureViews(this)
         }
     }
 
     private fun configureViews(rootView: View) {
         val inputLogin = rootView.findViewById<TextInputEditText>(R.id.input_login)
         inputPassword = rootView.findViewById(R.id.input_password)
-        val connectionFlag = NetworkUtils.isInternetAvailable(requireContext())
+
         rootView.findViewById<AppCompatButton>(R.id.button_login).setOnClickListener {
-            if (connectionFlag) vm.login(inputLogin.text.toString(), inputPassword.text.toString())
-            setObservers()
+            handleLogin(inputLogin.text.toString(), inputPassword.text.toString())
         }
+    }
+
+    private fun handleLogin(login: String, password: String) {
+        if (NetworkUtils.isInternetAvailable(requireContext())) {
+            vm.login(login, password)
+            observeLoginState()
+        }
+    }
+
+    private fun observeLoginState() {
+        vm.loginState.observe(viewLifecycleOwner) { isLoggedIn ->
+            if (isLoggedIn == true) {
+                navigateToSearchFragment()
+            } else {
+                showPasswordErrorAlert()
+            }
+        }
+    }
+
+    private fun navigateToSearchFragment() {
+        try {
+            findNavController().navigate(R.id.action_loginFragment_to_searchFragment)
+        } catch (e: RuntimeException) { }
     }
 
     private fun showPasswordErrorAlert() {

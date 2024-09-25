@@ -24,7 +24,7 @@ import ru.bratusev.kinopoisk.common.NetworkUtils
 
 class SearchFragment : Fragment(), OnItemClickListener {
 
-    private val vm: SearchViewModel by viewModel<SearchViewModel>()
+    private val vm: SearchViewModel by viewModel()
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var textYear: TextView
     private lateinit var inputSearch: TextInputEditText
@@ -41,23 +41,41 @@ class SearchFragment : Fragment(), OnItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_search, container, false).also {
-            configureViews(it.rootView)
+        return inflater.inflate(R.layout.fragment_search, container, false).apply {
+            configureViews(this)
             setObservers()
-            NetworkUtils.isInternetAvailable(requireContext())
+            loadInitialData()
+        }
+    }
+
+    private fun loadInitialData() {
+        if (NetworkUtils.isInternetAvailable(requireContext())) {
             vm.getFilmsRemote(order, year, page)
         }
     }
 
     private fun configureViews(rootView: View) {
-        rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener {
-            try {
-                findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
-            } catch (_: RuntimeException) {
-            }
-        }
+        setupLogoutButton(rootView)
+        setupProgressBar(rootView)
+        setupSearchInput(rootView)
+        setupSortButton(rootView)
+        setupYearPicker(rootView)
+        setupSwipeRefresh(rootView)
+        setupRecyclerView(rootView)
+        setupBackPressHandler()
+    }
 
+    private fun setupLogoutButton(rootView: View) {
+        rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener {
+            navigateToLoginFragment()
+        }
+    }
+
+    private fun setupProgressBar(rootView: View) {
         progressLoad = rootView.findViewById(R.id.progressLoad)
+    }
+
+    private fun setupSearchInput(rootView: View) {
         inputSearch = rootView.findViewById(R.id.input_search)
         inputSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -66,48 +84,61 @@ class SearchFragment : Fragment(), OnItemClickListener {
                 vm.searchFilms(s.toString())
             }
         })
+    }
 
+    private fun setupSortButton(rootView: View) {
         rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener {
             page = 1
             vm.getFilmsRemote(order, year, page, true)
         }
+    }
 
-        textYear = rootView.findViewById<TextView>(R.id.yearPicker).also { textView ->
-            textView.setOnClickListener {
-                val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
-                    textView.text = selectedYear.toString()
-                    year = selectedYear.toString()
-                    page = 1
-                    vm.getFilmsRemote(order, year, page, true)
-                }, 2024, 1, 1)
-                dataPicker.datePicker.maxDate = System.currentTimeMillis()
-                dataPicker.show()
+    private fun setupYearPicker(rootView: View) {
+        textYear = rootView.findViewById<TextView>(R.id.yearPicker).apply {
+            setOnClickListener {
+                showYearPickerDialog(this)
             }
         }
+    }
 
-        swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films).also {
-            it.setOnRefreshListener {
+    private fun showYearPickerDialog(textView: TextView) {
+        val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
+            year = selectedYear.toString()
+            textView.text = year
+            page = 1
+            vm.getFilmsRemote(order, year, page, true)
+        }, 2024, 1, 1).apply {
+            datePicker.maxDate = System.currentTimeMillis()
+        }
+        dataPicker.show()
+    }
+
+    private fun setupSwipeRefresh(rootView: View) {
+        swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films).apply {
+            setOnRefreshListener {
                 page = 1
                 vm.getFilmsRemote(order, year, page, true)
             }
         }
+    }
 
-        rootView.findViewById<RecyclerView>(R.id.recycler_films).also {
-            it.layoutManager = LinearLayoutManager(requireContext())
-            it.adapter = filmAdapter
-            it.addOnScrollListener(onScroll)
+    private fun setupRecyclerView(rootView: View) {
+        rootView.findViewById<RecyclerView>(R.id.recycler_films).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = filmAdapter
+            addOnScrollListener(onScroll)
         }
+    }
 
+    private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    try {
-                        findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
-                    } catch (_: RuntimeException) {
-                    }
+                    navigateToLoginFragment()
                 }
-            })
+            }
+        )
     }
 
     private val onScroll = object : RecyclerView.OnScrollListener() {
@@ -115,7 +146,9 @@ class SearchFragment : Fragment(), OnItemClickListener {
             super.onScrolled(recyclerView, dx, dy)
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
-                if (inputSearch.text.isNullOrEmpty()) vm.getFilmsRemote(order, year, ++page)
+                if (inputSearch.text.isNullOrEmpty()) {
+                    vm.getFilmsRemote(order, year, ++page)
+                }
             }
         }
     }
@@ -123,7 +156,6 @@ class SearchFragment : Fragment(), OnItemClickListener {
     private fun setObservers() {
         vm.filmList.observe(viewLifecycleOwner) {
             filmAdapter.setData(it)
-            NetworkUtils.isInternetAvailable(requireContext())
             swipeRefresh.isRefreshing = false
         }
 
@@ -132,8 +164,14 @@ class SearchFragment : Fragment(), OnItemClickListener {
         }
 
         vm.isLoading.observe(viewLifecycleOwner) {
-            progressLoad.visibility = if(it) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
+            progressLoad.visibility = if (it) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
         }
+    }
+
+    private fun navigateToLoginFragment() {
+        try {
+            findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
+        } catch (_: RuntimeException) { }
     }
 
     override fun onItemClick(film: Film) {
@@ -147,8 +185,6 @@ class SearchFragment : Fragment(), OnItemClickListener {
         }
         try {
             findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
-        } catch (_: RuntimeException) {
-        }
+        } catch (_: RuntimeException) { }
     }
-
 }

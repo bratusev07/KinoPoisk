@@ -12,37 +12,38 @@ import kotlinx.coroutines.flow.onEach
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.UserData
 import ru.bratusev.domain.usecase.LoginUseCase
-
 class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
 
-    private val mutableLoginState = MutableLiveData<Boolean>()
-    internal val loginState: LiveData<Boolean> = mutableLoginState
+    private val _loginState = MutableLiveData<Boolean>()
+    val loginState: LiveData<Boolean> = _loginState
 
     internal fun login(login: String, password: String) {
         loginUseCase.invoke(UserData(login, password)).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    Log.d("LoginFragment", "Resource.Success")
-                    mutableLoginState.value = result.data ?: false
-                }
-
-                is Resource.Error -> {
-                    Log.d("LoginFragment", "Resource.Error ${result.message.toString()}")
-                }
-
-                is Resource.Loading -> {
-                    Log.d("LoginFragment", "Resource.Loading")
-                }
-            }
+            handleLoginResult(result)
         }.launchIn(viewModelScope)
+    }
+
+    private fun handleLoginResult(result: Resource<Boolean>) {
+        when (result) {
+            is Resource.Success -> _loginState.value = result.data ?: false
+            is Resource.Error -> logError(result.message)
+            is Resource.Loading -> logLoading()
+        }
     }
 
     fun showDialog(builder: AlertDialog.Builder) {
         builder.setTitle("Ошибка")
-        builder.setMessage("Неверный пароль. Пожалуйста, попробуйте снова.")
-        builder.setPositiveButton("OK") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-        val alertDialog = builder.create()
-        alertDialog.show()
+            .setMessage("Неверный пароль. Пожалуйста, попробуйте снова.")
+            .setPositiveButton("OK") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+            .create()
+            .show()
     }
 
+    private fun logError(message: String?) {
+        Log.d("LoginViewModel", "Resource.Error ${message ?: "Unknown error"}")
+    }
+
+    private fun logLoading() {
+        Log.d("LoginViewModel", "Resource.Loading")
+    }
 }

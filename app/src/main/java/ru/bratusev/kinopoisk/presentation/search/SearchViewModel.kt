@@ -17,60 +17,70 @@ class SearchViewModel(
     private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase
 ) : ViewModel() {
 
-    private val mutableFilmList = MutableLiveData<ArrayList<Film>>()
-    internal val filmList: LiveData<ArrayList<Film>> = mutableFilmList
+    private val _filmList = MutableLiveData<ArrayList<Film>>()
+    internal val filmList: LiveData<ArrayList<Film>> = _filmList
 
-    private val mutableIsLoading = MutableLiveData<Boolean>()
-    internal val isLoading: LiveData<Boolean> = mutableIsLoading
+    private val _isLoading = MutableLiveData<Boolean>()
+    internal val isLoading: LiveData<Boolean> = _isLoading
 
-    private val mutableYear = MutableLiveData<String>()
-    internal val year: LiveData<String> = mutableYear
+    private val _year = MutableLiveData<String>()
+    internal val year: LiveData<String> = _year
 
     internal fun getFilmsRemote(order: String = "RATING", year: String = "1000", page: Int = 1, needUpdate: Boolean = false) {
         getFilmsUseCase.invoke(order, year, page).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    Log.d("SearchFragment", "Resource.Success")
-                    if(needUpdate){
-                        mutableFilmList.value = result.data as ArrayList<Film>
-                    }else{
-                        val films = mutableFilmList.value ?: arrayListOf()
-                        films.addAll(result.data as ArrayList<Film>)
-                        mutableFilmList.value = films
-                    }
-                    mutableIsLoading.value = false
-                }
-
-                is Resource.Error -> {
-                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
-                }
-
-                is Resource.Loading -> {
-                    mutableIsLoading.value = true
-                    Log.d("SearchFragment", "Resource.Loading")
-                }
-            }
+            handleFilmResult(result, needUpdate)
         }.launchIn(viewModelScope)
     }
 
     internal fun searchFilms(keyword: String) {
         getFilmByKeywordUseCase.invoke(keyword).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    Log.d("SearchFragment", "Resource.Success")
-                    mutableFilmList.value = result.data as ArrayList<Film>
-                    mutableIsLoading.value = false
-                }
-
-                is Resource.Error -> {
-                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
-                }
-
-                is Resource.Loading -> {
-                    mutableIsLoading.value = true
-                    Log.d("SearchFragment", "Resource.Loading")
-                }
-            }
+            handleSearchResult(result)
         }.launchIn(viewModelScope)
+    }
+
+    private fun handleFilmResult(result: Resource<ArrayList<Film>>, needUpdate: Boolean) {
+        when (result) {
+            is Resource.Success -> {
+                updateFilmList(result.data as ArrayList<Film>, needUpdate)
+                _isLoading.value = false
+            }
+            is Resource.Error -> logError(result.message)
+            is Resource.Loading -> {
+                _isLoading.value = true
+                logLoading()
+            }
+        }
+    }
+
+    private fun handleSearchResult(result: Resource<ArrayList<Film>>) {
+        when (result) {
+            is Resource.Success -> {
+                _filmList.value = result.data as ArrayList<Film>
+                _isLoading.value = false
+            }
+            is Resource.Error -> logError(result.message)
+            is Resource.Loading -> {
+                _isLoading.value = true
+                logLoading()
+            }
+        }
+    }
+
+    private fun updateFilmList(newFilms: ArrayList<Film>, needUpdate: Boolean) {
+        if (needUpdate) {
+            _filmList.value = newFilms
+        } else {
+            val currentFilms = _filmList.value ?: arrayListOf()
+            currentFilms.addAll(newFilms)
+            _filmList.value = currentFilms
+        }
+    }
+
+    private fun logError(message: String?) {
+        Log.d("SearchViewModel", "Resource.Error ${message ?: "Unknown error"}")
+    }
+
+    private fun logLoading() {
+        Log.d("SearchViewModel", "Resource.Loading")
     }
 }

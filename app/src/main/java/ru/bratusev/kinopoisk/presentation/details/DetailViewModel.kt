@@ -18,48 +18,45 @@ class DetailViewModel(
     private val getFramesUseCase: GetFramesUseCase
 ) : ViewModel() {
 
-    private val mutableFilm = MutableLiveData<FilmDetail>()
-    internal val filmDetail: LiveData<FilmDetail> = mutableFilm
+    private val _filmDetail = MutableLiveData<FilmDetail>()
+    val filmDetail: LiveData<FilmDetail> = _filmDetail
 
-    private val mutableFrameList = MutableLiveData<ArrayList<Frame>>()
-    internal val frameList: LiveData<ArrayList<Frame>> = mutableFrameList
+    private val _frameList = MutableLiveData<List<Frame>>()
+    val frameList: LiveData<List<Frame>> = _frameList
 
     internal fun getFilmByIdRemote(kinopoiskId: Int) {
         getFilmByIdUseCase.invoke(kinopoiskId).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    Log.d("SearchFragment", "Resource.Success")
-                    mutableFilm.value = result.data as FilmDetail
-                }
-
-                is Resource.Error -> {
-                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
-                }
-
-                is Resource.Loading -> {
-                    Log.d("SearchFragment", "Resource.Loading")
-                }
-            }
+            handleFilmResult(result)
         }.launchIn(viewModelScope)
+    }
+
+    private fun handleFilmResult(result: Resource<FilmDetail>) {
+        when (result) {
+            is Resource.Success -> _filmDetail.value = result.data as FilmDetail
+            is Resource.Error -> logError(result.message)
+            is Resource.Loading -> logLoading()
+        }
     }
 
     internal fun getFramesRemote(kinopoiskId: Int) {
         getFramesUseCase.invoke(kinopoiskId).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    Log.d("SearchFragment", "Resource.Success")
-                    mutableFrameList.value = result.data as ArrayList<Frame>
-                }
-
-                is Resource.Error -> {
-                    Log.d("SearchFragment", "Resource.Error ${result.message.toString()}")
-                }
-
-                is Resource.Loading -> {
-                    Log.d("SearchFragment", "Resource.Loading")
-                }
-            }
+            handleFramesResult(result)
         }.launchIn(viewModelScope)
     }
 
+    private fun handleFramesResult(result: Resource<ArrayList<Frame>>) {
+        when (result) {
+            is Resource.Success -> _frameList.value = result.data ?: emptyList()
+            is Resource.Error -> logError(result.message)
+            is Resource.Loading -> logLoading()
+        }
+    }
+
+    private fun logError(message: String?) {
+        Log.d("DetailViewModel", "Resource.Error ${message ?: "Unknown error"}")
+    }
+
+    private fun logLoading() {
+        Log.d("DetailViewModel", "Resource.Loading")
+    }
 }
