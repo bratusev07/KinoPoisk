@@ -20,6 +20,9 @@ class SearchViewModel(
     private val mutableFilmList = MutableLiveData<ArrayList<Film>>()
     internal val filmList: LiveData<ArrayList<Film>> = mutableFilmList
 
+    private val mutableIsLoading = MutableLiveData<Boolean>()
+    internal val isLoading: LiveData<Boolean> = mutableIsLoading
+
     private val mutableYear = MutableLiveData<String>()
     internal val year: LiveData<String> = mutableYear
 
@@ -35,6 +38,7 @@ class SearchViewModel(
                         films.addAll(result.data as ArrayList<Film>)
                         mutableFilmList.value = films
                     }
+                    mutableIsLoading.value = false
                 }
 
                 is Resource.Error -> {
@@ -42,6 +46,7 @@ class SearchViewModel(
                 }
 
                 is Resource.Loading -> {
+                    mutableIsLoading.value = true
                     Log.d("SearchFragment", "Resource.Loading")
                 }
             }
@@ -54,6 +59,7 @@ class SearchViewModel(
                 is Resource.Success -> {
                     Log.d("SearchFragment", "Resource.Success")
                     mutableFilmList.value = result.data as ArrayList<Film>
+                    mutableIsLoading.value = false
                 }
 
                 is Resource.Error -> {
@@ -61,6 +67,7 @@ class SearchViewModel(
                 }
 
                 is Resource.Loading -> {
+                    mutableIsLoading.value = true
                     Log.d("SearchFragment", "Resource.Loading")
                 }
             }

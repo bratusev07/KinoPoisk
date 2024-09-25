@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -26,6 +27,9 @@ class SearchFragment : Fragment(), OnItemClickListener {
     private val vm: SearchViewModel by viewModel<SearchViewModel>()
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var textYear: TextView
+    private lateinit var inputSearch: TextInputEditText
+    private lateinit var progressLoad: ProgressBar
+
     private val filmAdapter = FilmAdapter(arrayListOf(), this)
 
     private var order: String = "RATING"
@@ -53,37 +57,31 @@ class SearchFragment : Fragment(), OnItemClickListener {
             }
         }
 
-        rootView.findViewById<TextInputEditText>(R.id.input_search)
-            .addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    vm.searchFilms(s.toString())
-                }
-            })
+        progressLoad = rootView.findViewById(R.id.progressLoad)
+        inputSearch = rootView.findViewById(R.id.input_search)
+        inputSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                vm.searchFilms(s.toString())
+            }
+        })
 
         rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener {
             page = 1
-            order = "RATING"
             vm.getFilmsRemote(order, year, page, true)
         }
 
         textYear = rootView.findViewById<TextView>(R.id.yearPicker).also { textView ->
             textView.setOnClickListener {
-                DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
+                val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
                     textView.text = selectedYear.toString()
-                    order = "YEAR"
                     year = selectedYear.toString()
                     page = 1
                     vm.getFilmsRemote(order, year, page, true)
-                }, 2024, 1, 1).show()
+                }, 2024, 1, 1)
+                dataPicker.datePicker.maxDate = System.currentTimeMillis()
+                dataPicker.show()
             }
         }
 
@@ -117,7 +115,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
             super.onScrolled(recyclerView, dx, dy)
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
-                vm.getFilmsRemote(order, year, ++page)
+                if (inputSearch.text.isNullOrEmpty()) vm.getFilmsRemote(order, year, ++page)
             }
         }
     }
@@ -131,6 +129,10 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
         vm.year.observe(viewLifecycleOwner) {
             textYear.text = it
+        }
+
+        vm.isLoading.observe(viewLifecycleOwner) {
+            progressLoad.visibility = if(it) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
         }
     }
 
