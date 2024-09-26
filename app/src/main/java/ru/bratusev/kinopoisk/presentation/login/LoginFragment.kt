@@ -40,8 +40,15 @@ class LoginFragment : Fragment() {
 
     private fun handleLogin(login: String, password: String) {
         if (NetworkUtils.isInternetAvailable(requireContext())) {
-            vm.login(login, password)
-            observeLoginState()
+            if (login.isEmpty() || password.isEmpty()) vm.showDialog(
+                AlertDialog.Builder(
+                    requireContext()
+                ), "Логин или пароль не были введены."
+            )
+            else {
+                vm.login(login, password)
+                observeLoginState()
+            }
         }
     }
 
@@ -58,10 +65,14 @@ class LoginFragment : Fragment() {
     private fun navigateToSearchFragment() {
         try {
             findNavController().navigate(R.id.action_loginFragment_to_searchFragment)
-        } catch (e: RuntimeException) { }
+        } catch (e: RuntimeException) {
+        }
     }
 
     private fun showPasswordErrorAlert() {
-        vm.showDialog(AlertDialog.Builder(requireContext()))
+        vm.showDialog(
+            AlertDialog.Builder(requireContext()),
+            "Неверный пароль. Пожалуйста, попробуйте снова."
+        )
     }
 }

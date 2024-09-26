@@ -23,11 +23,14 @@ class SearchViewModel(
     private val _isLoading = MutableLiveData<Boolean>()
     internal val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _year = MutableLiveData<String>()
-    internal val year: LiveData<String> = _year
-
-    internal fun getFilmsRemote(order: String = "RATING", year: String = "1000", page: Int = 1, needUpdate: Boolean = false) {
-        getFilmsUseCase.invoke(order, year, page).onEach { result ->
+    internal fun getFilmsRemote(
+        order: String = "RATING",
+        year: String = "1000",
+        page: Int = 1,
+        endYear: String = "2024",
+        needUpdate: Boolean = false
+    ) {
+        getFilmsUseCase.invoke(order, year, page, endYear).onEach { result ->
             handleFilmResult(result, needUpdate)
         }.launchIn(viewModelScope)
     }
@@ -44,6 +47,7 @@ class SearchViewModel(
                 updateFilmList(result.data as ArrayList<Film>, needUpdate)
                 _isLoading.value = false
             }
+
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> {
                 _isLoading.value = true
@@ -58,6 +62,7 @@ class SearchViewModel(
                 _filmList.value = result.data as ArrayList<Film>
                 _isLoading.value = false
             }
+
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> {
                 _isLoading.value = true

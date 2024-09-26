@@ -6,7 +6,7 @@ import ru.bratusev.data.model.FrameDTO
 
 interface RemoteFilmStorage {
 
-    suspend fun getFilmsRemote(order: String, year: String, page: Int): ArrayList<FilmDTO>
+    suspend fun getFilmsRemote(order: String, year: String, page: Int, endYear: String): ArrayList<FilmDTO>
 
     suspend fun getFilmsByKeywordRemote(keyword: String): ArrayList<FilmDTO>
 

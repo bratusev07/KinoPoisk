@@ -31,9 +31,9 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         }
     }
 
-    fun showDialog(builder: AlertDialog.Builder) {
+    fun showDialog(builder: AlertDialog.Builder, message: String) {
         builder.setTitle("Ошибка")
-            .setMessage("Неверный пароль. Пожалуйста, попробуйте снова.")
+            .setMessage(message)
             .setPositiveButton("OK") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
             .create()
             .show()

@@ -26,14 +26,16 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
     private val vm: SearchViewModel by viewModel()
     private lateinit var swipeRefresh: SwipeRefreshLayout
-    private lateinit var textYear: TextView
+    private lateinit var textStartYear: TextView
+    private lateinit var textEndYear: TextView
     private lateinit var inputSearch: TextInputEditText
     private lateinit var progressLoad: ProgressBar
 
     private val filmAdapter = FilmAdapter(arrayListOf(), this)
 
     private var order: String = "RATING"
-    private var year: String = "1000"
+    private var startYear: String = "1000"
+    private var endYear: String = "2024"
     private var page: Int = 1
 
     override fun onCreateView(
@@ -50,7 +52,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
     private fun loadInitialData() {
         if (NetworkUtils.isInternetAvailable(requireContext())) {
-            vm.getFilmsRemote(order, year, page)
+            vm.getFilmsRemote(order, startYear, page, endYear)
         }
     }
 
@@ -89,24 +91,33 @@ class SearchFragment : Fragment(), OnItemClickListener {
     private fun setupSortButton(rootView: View) {
         rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener {
             page = 1
-            vm.getFilmsRemote(order, year, page, true)
+            order = if(order == "RATING") "YEAR" else "RATING"
+            it.rotationY += 180
+            vm.getFilmsRemote(order, startYear, page, endYear, true)
         }
     }
 
     private fun setupYearPicker(rootView: View) {
-        textYear = rootView.findViewById<TextView>(R.id.yearPicker).apply {
+        textStartYear = rootView.findViewById<TextView>(R.id.startYearPicker).apply {
             setOnClickListener {
                 showYearPickerDialog(this)
             }
         }
+        textEndYear = rootView.findViewById<TextView>(R.id.endYearPicker).apply {
+            setOnClickListener {
+                showYearPickerDialog(this, false)
+            }
+        }
     }
 
-    private fun showYearPickerDialog(textView: TextView) {
+    private fun showYearPickerDialog(textView: TextView, isStart: Boolean = true) {
         val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
-            year = selectedYear.toString()
+            val year = selectedYear.toString()
             textView.text = year
             page = 1
-            vm.getFilmsRemote(order, year, page, true)
+            if(isStart) startYear = year
+            else endYear = year
+            vm.getFilmsRemote(order, startYear, page, endYear,true)
         }, 2024, 1, 1).apply {
             datePicker.maxDate = System.currentTimeMillis()
         }
@@ -117,7 +128,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
         swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films).apply {
             setOnRefreshListener {
                 page = 1
-                vm.getFilmsRemote(order, year, page, true)
+                vm.getFilmsRemote(order, startYear, page, endYear, true)
             }
         }
     }
@@ -147,7 +158,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
                 if (inputSearch.text.isNullOrEmpty()) {
-                    vm.getFilmsRemote(order, year, ++page)
+                    vm.getFilmsRemote(order, startYear, ++page, endYear)
                 }
             }
         }
@@ -157,10 +168,6 @@ class SearchFragment : Fragment(), OnItemClickListener {
         vm.filmList.observe(viewLifecycleOwner) {
             filmAdapter.setData(it)
             swipeRefresh.isRefreshing = false
-        }
-
-        vm.year.observe(viewLifecycleOwner) {
-            textYear.text = it
         }
 
         vm.isLoading.observe(viewLifecycleOwner) {

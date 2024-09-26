@@ -16,8 +16,8 @@ class FilmRepositoryImpl(
     private val localFilmStorage: LocalFilmStorage
 ) : FilmRepository {
 
-    override suspend fun getFilms(order: String, year: String, page: Int): ArrayList<Film> {
-        return remoteFilmStorage.getFilmsRemote(order, year, page).map { it.toFilm() } as ArrayList<Film>
+    override suspend fun getFilms(order: String, year: String, page: Int, endYear: String): ArrayList<Film> {
+        return remoteFilmStorage.getFilmsRemote(order, year, page, endYear).map { it.toFilm() } as ArrayList<Film>
     }
 
     override suspend fun getFilmById(kinopoiskId: Int): FilmDetail {

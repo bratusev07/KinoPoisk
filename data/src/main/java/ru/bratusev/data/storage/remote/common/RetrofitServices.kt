@@ -14,7 +14,7 @@ interface RetrofitServices {
         @Query("order") order: String,
         @Query("yearFrom") yearFrom: String,
         @Query("page") page: Int,
-        @Query("yearTo") yearTo: String = "2024",
+        @Query("yearTo") yearTo: String,
     ): FilmData
 
     @GET("films/search-by-keyword")
