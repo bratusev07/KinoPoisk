@@ -6,9 +6,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object Common {
-    private val BASE_URL = "https://kinopoiskapiunofficial.tech/api/v2.2/"
+    private const val BASE_URL = "https://kinopoiskapiunofficial.tech/api/v2.2/"
 
-    private val key = "de1db718-950e-449d-88a1-39a41062cee6"
+    private const val KEY = "de1db718-950e-449d-88a1-39a41062cee6"
 
     val retrofitService: RetrofitServices
         get() = RetrofitClient.getClient(BASE_URL).create(RetrofitServices::class.java)
@@ -34,7 +34,7 @@ object Common {
         private fun getInterceptor() = Interceptor { chain ->
             val original = chain.request()
             val request = original.newBuilder()
-                .header("X-API-KEY", key)
+                .header("X-API-KEY", KEY)
                 .method(original.method(), original.body())
                 .build()
             chain.proceed(request)

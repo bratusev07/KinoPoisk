@@ -2,6 +2,7 @@ package ru.bratusev.kinopoisk.presentation.login
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,6 +67,7 @@ class LoginFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_loginFragment_to_searchFragment)
         } catch (e: RuntimeException) {
+            Log.e("DetailFragment", e.message.toString())
         }
     }
 

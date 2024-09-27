@@ -28,8 +28,8 @@ fun FilmEntity.toFilm(): Film {
         genre = genres,
         ratingKinopoisk = ratingKinopoisk,
         year = releaseYear.toInt(),
-        posterUrl = posterUrlPreview ?: "нет данных",
-        posterUrlPreview = posterUrlPreview ?: "нет данных",
+        posterUrl = posterUrlPreview,
+        posterUrlPreview = posterUrlPreview,
         frameList = arrayListOf()
     )
 }

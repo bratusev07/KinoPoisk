@@ -4,12 +4,14 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -159,7 +161,10 @@ class SearchFragment : Fragment(), OnItemClickListener {
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
                 if (inputSearch.text.isNullOrEmpty()) {
                     vm.getFilmsRemote(order, startYear, ++page, endYear)
-                }
+                } else Toast.makeText(requireContext(),
+                    "Это все ответы найденые локально и удовлетворяющие вашему запросу",
+                    Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

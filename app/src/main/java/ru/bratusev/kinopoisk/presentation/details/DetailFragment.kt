@@ -3,6 +3,7 @@ package ru.bratusev.kinopoisk.presentation.details
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -111,6 +112,8 @@ class DetailFragment : Fragment() {
     private fun navigateToSearchFragment() {
         try {
             findNavController().navigate(R.id.action_detailFragment_to_searchFragment)
-        } catch (e: RuntimeException) { }
+        } catch (e: RuntimeException) {
+            Log.e("DetailFragment", e.message.toString())
+        }
     }
 }
