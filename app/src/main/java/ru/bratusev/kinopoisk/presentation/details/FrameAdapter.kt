@@ -5,12 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.model.Frame
 import ru.bratusev.kinopoisk.R
 
-class FrameAdapter(private var frameList: List<Frame>) :
+class FrameAdapter :
     RecyclerView.Adapter<FrameAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -23,7 +26,7 @@ class FrameAdapter(private var frameList: List<Frame>) :
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val currentItem = frameList[position]
+        val currentItem = asyncListDiffer.currentList[position]
         Glide.with(holder.frame)
             .load(currentItem.imageUrl)
             .error(R.drawable.ic_placeholder)
@@ -31,11 +34,17 @@ class FrameAdapter(private var frameList: List<Frame>) :
             .into(holder.frame)
     }
 
-    override fun getItemCount() = frameList.size
+    override fun getItemCount() = asyncListDiffer.currentList.size
 
-    @SuppressLint("NotifyDataSetChanged")
     internal fun setData(data: ArrayList<Frame>) {
-        frameList = data
-        notifyDataSetChanged()
+        asyncListDiffer.submitList(data)
     }
+
+    private val diffUtil : DiffUtil.ItemCallback<Frame> = object : DiffUtil.ItemCallback<Frame>() {
+        override fun areItemsTheSame(oldItem: Frame, newItem: Frame): Boolean = (oldItem === newItem)
+
+        override fun areContentsTheSame(oldItem: Frame, newItem: Frame): Boolean = (oldItem == newItem)
+    }
+
+    private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
 }

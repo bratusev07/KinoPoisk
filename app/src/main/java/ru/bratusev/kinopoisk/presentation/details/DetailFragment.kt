@@ -24,7 +24,7 @@ import ru.bratusev.kinopoisk.R
 class DetailFragment : Fragment() {
 
     private val vm: DetailViewModel by viewModel()
-    private val frameAdapter = FrameAdapter(arrayListOf())
+    private val frameAdapter = FrameAdapter()
     private var webUrl: String? = null
 
     private lateinit var textDescription: TextView
