@@ -171,7 +171,17 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
     private fun setObservers() {
         vm.filmList.observe(viewLifecycleOwner) {
-            filmAdapter.setData(it)
+            val filmList = mutableListOf<ListItem>()
+            val seenYears = mutableSetOf<Int>()
+            it.forEach { film ->
+                val year = film.year
+                if (year !in seenYears) {
+                    filmList.add(ListItem.YearItem(year.toString()))
+                    seenYears.add(year)
+                }
+                filmList.add(ListItem.DefaultItem(film))
+            }
+            filmAdapter.setData(filmList)
             swipeRefresh.isRefreshing = false
         }
 
