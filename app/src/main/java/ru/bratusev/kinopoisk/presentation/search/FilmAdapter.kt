@@ -6,13 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.bratusev.domain.model.Film
+import ru.bratusev.domain.model.Frame
 import ru.bratusev.kinopoisk.R
 
 class FilmAdapter(
-    private var filmList: ArrayList<Film>,
     private val listener: OnItemClickListener
 ) :
     RecyclerView.Adapter<FilmAdapter.ItemViewHolder>() {
@@ -32,7 +34,7 @@ class FilmAdapter(
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val currentItem = filmList[position]
+        val currentItem = asyncListDiffer.currentList[position]
         holder.itemView.setOnClickListener { listener.onItemClick(currentItem) }
         Glide.with(holder.imageFilm)
             .load(currentItem.posterUrlPreview)
@@ -45,11 +47,17 @@ class FilmAdapter(
         holder.textRating.text = currentItem.ratingKinopoisk.toString()
     }
 
-    override fun getItemCount() = filmList.size
+    override fun getItemCount() = asyncListDiffer.currentList.size
 
-    @SuppressLint("NotifyDataSetChanged")
     fun setData(value: ArrayList<Film>?) {
-        filmList = (value ?: arrayListOf())
-        notifyDataSetChanged()
+        asyncListDiffer.submitList(value)
     }
+
+    private val diffUtil : DiffUtil.ItemCallback<Film> = object : DiffUtil.ItemCallback<Film>() {
+        override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean = (oldItem === newItem)
+
+        override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean = (oldItem == newItem)
+    }
+
+    private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
 }

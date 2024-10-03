@@ -33,7 +33,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
     private lateinit var inputSearch: TextInputEditText
     private lateinit var progressLoad: ProgressBar
 
-    private val filmAdapter = FilmAdapter(arrayListOf(), this)
+    private val filmAdapter = FilmAdapter(this)
 
     private var order: String = "RATING"
     private var startYear: String = "1000"
