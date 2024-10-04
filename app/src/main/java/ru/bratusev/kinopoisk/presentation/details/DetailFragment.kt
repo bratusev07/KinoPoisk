@@ -24,7 +24,7 @@ import ru.bratusev.kinopoisk.R
 class DetailFragment : Fragment() {
 
     private val vm: DetailViewModel by viewModel()
-    private val frameAdapter = FrameAdapter()
+    private val frameAdapter = FrameScreenAdapter()
     private var webUrl: String? = null
 
     private lateinit var textDescription: TextView
@@ -50,7 +50,7 @@ class DetailFragment : Fragment() {
     }
 
     private fun setObservers() {
-        vm.frameList.observe(viewLifecycleOwner) { frameAdapter.setData(it as ArrayList<Frame>) }
+        vm.frameList.observe(viewLifecycleOwner) { frameAdapter.items = it }
         vm.filmDetail.observe(viewLifecycleOwner) { filmDetail ->
             textDescription.text = filmDetail.description
             textDate.text = "${filmDetail.startYear}-${filmDetail.endYear}, ${textDate.text}"
