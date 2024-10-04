@@ -33,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -57,6 +61,9 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.androidx.room.ktx)
+
+    // Adapter delegate
+    implementation(libs.adapterdelegates4.kotlin.dsl.viewbinding)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

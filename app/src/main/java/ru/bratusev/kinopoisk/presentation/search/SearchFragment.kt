@@ -21,6 +21,7 @@ import com.google.android.material.textfield.TextInputEditText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.NetworkUtils
+import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
 class SearchFragment : Fragment(), OnItemClickListener {
 
@@ -169,7 +170,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
     private fun setObservers() {
         vm.filmList.observe(viewLifecycleOwner) {
-            filmAdapter.setData(it)
+            filmAdapter.items = it
             swipeRefresh.isRefreshing = false
         }
 
@@ -184,12 +185,12 @@ class SearchFragment : Fragment(), OnItemClickListener {
         } catch (_: RuntimeException) { }
     }
 
-    override fun onItemClick(film: BaseItem.FilmItemUI) {
+    override fun onItemClick(film: FilmItemUI) {
         val bundle = Bundle().apply {
             putString("banner", film.posterUrl)
             putString("rating", film.ratingKinopoisk.toString())
             putString("name", film.name)
-            putInt("kinopoiskId", film.kinopoiskId)
+            putInt("kinopoiskId", film.itemId.toInt())
             putString("genre", film.genre)
             putString("country", film.country)
         }
