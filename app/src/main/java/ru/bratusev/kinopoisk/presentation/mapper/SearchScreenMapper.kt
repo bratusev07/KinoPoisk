@@ -1,7 +1,9 @@
 package ru.bratusev.kinopoisk.presentation.mapper
 
 import ru.bratusev.domain.model.Film
-import ru.bratusev.kinopoisk.presentation.search.BaseItem
+import ru.bratusev.kinopoisk.presentation.items.BaseItem
+import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
+import ru.bratusev.kinopoisk.presentation.items.YearItemUI
 
 class SearchScreenMapper : Mapper<List<Film>, List<BaseItem>> {
 
@@ -19,8 +21,8 @@ class SearchScreenMapper : Mapper<List<Film>, List<BaseItem>> {
         return filmList
     }
 
-    private fun mapToFilmUI(film: Film): BaseItem.FilmItemUI = BaseItem.FilmItemUI(
-        film.kinopoiskId,
+    private fun mapToFilmUI(film: Film): FilmItemUI = FilmItemUI(
+        film.kinopoiskId.toString(),
         film.name,
         film.country,
         film.genre,
@@ -31,6 +33,6 @@ class SearchScreenMapper : Mapper<List<Film>, List<BaseItem>> {
         film.frameList
     )
 
-    private fun mapToYearUI(year: String): BaseItem.YearItemUI = BaseItem.YearItemUI(year)
+    private fun mapToYearUI(year: String): YearItemUI = YearItemUI(year)
 
 }

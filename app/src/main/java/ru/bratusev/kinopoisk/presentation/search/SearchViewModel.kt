@@ -11,6 +11,7 @@ import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
+import ru.bratusev.kinopoisk.presentation.items.BaseItem
 import ru.bratusev.kinopoisk.presentation.mapper.SearchScreenMapper
 
 class SearchViewModel(
