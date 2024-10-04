@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.textfield.TextInputEditText
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import ru.bratusev.domain.model.Film
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.NetworkUtils
 
@@ -171,17 +169,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
     private fun setObservers() {
         vm.filmList.observe(viewLifecycleOwner) {
-            val filmList = mutableListOf<ListItem>()
-            val seenYears = mutableSetOf<Int>()
-            it.forEach { film ->
-                val year = film.year
-                if (year !in seenYears) {
-                    filmList.add(ListItem.YearItem(year.toString()))
-                    seenYears.add(year)
-                }
-                filmList.add(ListItem.DefaultItem(film))
-            }
-            filmAdapter.setData(filmList)
+            filmAdapter.setData(it)
             swipeRefresh.isRefreshing = false
         }
 
@@ -196,7 +184,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
         } catch (_: RuntimeException) { }
     }
 
-    override fun onItemClick(film: Film) {
+    override fun onItemClick(film: BaseItem.FilmItemUI) {
         val bundle = Bundle().apply {
             putString("banner", film.posterUrl)
             putString("rating", film.ratingKinopoisk.toString())

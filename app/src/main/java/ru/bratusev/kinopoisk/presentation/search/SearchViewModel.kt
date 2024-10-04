@@ -11,14 +11,15 @@ import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
+import ru.bratusev.kinopoisk.presentation.mapper.SearchScreenMapper
 
 class SearchViewModel(
     private val getFilmsUseCase: GetFilmsUseCase,
     private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase
 ) : ViewModel() {
 
-    private val _filmList = MutableLiveData<ArrayList<Film>>()
-    internal val filmList: LiveData<ArrayList<Film>> = _filmList
+    private val _filmList = MutableLiveData<ArrayList<BaseItem>>()
+    internal val filmList: LiveData<ArrayList<BaseItem>> = _filmList
 
     private val _isLoading = MutableLiveData<Boolean>()
     internal val isLoading: LiveData<Boolean> = _isLoading
@@ -59,7 +60,7 @@ class SearchViewModel(
     private fun handleSearchResult(result: Resource<ArrayList<Film>>) {
         when (result) {
             is Resource.Success -> {
-                _filmList.value = result.data as ArrayList<Film>
+                _filmList.value = SearchScreenMapper().transform(result.data as ArrayList<Film>) as ArrayList
                 _isLoading.value = false
             }
 
@@ -73,10 +74,10 @@ class SearchViewModel(
 
     private fun updateFilmList(newFilms: ArrayList<Film>, needUpdate: Boolean) {
         if (needUpdate) {
-            _filmList.value = newFilms
+            _filmList.value = SearchScreenMapper().transform(newFilms) as ArrayList
         } else {
             val currentFilms = _filmList.value ?: arrayListOf()
-            currentFilms.addAll(newFilms)
+            currentFilms.addAll(SearchScreenMapper().transform(newFilms))
             _filmList.value = currentFilms
         }
     }
