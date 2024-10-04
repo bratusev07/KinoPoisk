@@ -10,15 +10,13 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import ru.bratusev.domain.model.Film
-import ru.bratusev.domain.model.Frame
 import ru.bratusev.kinopoisk.R
 
 class FilmAdapter(
     private val listener: OnItemClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    inner class DefaultViewHolder(holder: View) : RecyclerView.ViewHolder(holder) {
+    inner class FilmViewHolder(holder: View) : RecyclerView.ViewHolder(holder) {
         private val imageFilm: ImageView = itemView.findViewById(R.id.image_film)
         private val textName: TextView = itemView.findViewById(R.id.text_name)
         private val textGenre: TextView = itemView.findViewById(R.id.text_genre)
@@ -26,39 +24,38 @@ class FilmAdapter(
         private val textRating: TextView = itemView.findViewById(R.id.text_rating)
 
         @SuppressLint("SetTextI18n")
-        fun bind(item: ListItem.DefaultItem) {
-            val currentItem = item.film
-            itemView.setOnClickListener { listener.onItemClick(currentItem) }
+        fun bind(item: BaseItem.FilmItemUI) {
+            itemView.setOnClickListener { listener.onItemClick(item) }
             Glide.with(imageFilm)
-                .load(currentItem.posterUrlPreview)
+                .load(item.posterUrlPreview)
                 .error(R.drawable.ic_placeholder)
                 .placeholder(R.drawable.ic_placeholder)
                 .into(imageFilm)
-            textName.text = currentItem.name
-            textGenre.text = currentItem.genre
-            textDate.text = "${currentItem.year}, ${currentItem.country}"
-            textRating.text = currentItem.ratingKinopoisk.toString()
+            textName.text = item.name
+            textGenre.text = item.genre
+            textDate.text = "${item.year}, ${item.country}"
+            textRating.text = item.ratingKinopoisk.toString()
         }
     }
 
     inner class YearViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val yearOfFilm: TextView = itemView.findViewById(R.id.text_year)
 
-        fun bind(item: ListItem.YearItem) {
+        fun bind(item: BaseItem.YearItemUI) {
             yearOfFilm.text = item.year
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when(asyncListDiffer.currentList[position]) {
-            is ListItem.DefaultItem -> 0
-            is ListItem.YearItem -> 1
+            is BaseItem.FilmItemUI -> 0
+            is BaseItem.YearItemUI -> 1
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            0 -> DefaultViewHolder(
+            0 -> FilmViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_film, parent, false)
             )
@@ -72,24 +69,23 @@ class FilmAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = asyncListDiffer.currentList[position]) {
-            is ListItem.DefaultItem -> (holder as DefaultViewHolder).bind(item)
-            is ListItem.YearItem -> (holder as YearViewHolder).bind(item)
+            is BaseItem.FilmItemUI -> (holder as FilmViewHolder).bind(item)
+            is BaseItem.YearItemUI -> (holder as YearViewHolder).bind(item)
         }
     }
 
     override fun getItemCount() = asyncListDiffer.currentList.size
 
-    fun setData(value: List<ListItem>?) {
+    fun setData(value: List<BaseItem>?) {
         asyncListDiffer.submitList(value)
     }
 
-    private val diffUtil : DiffUtil.ItemCallback<ListItem> = object : DiffUtil.ItemCallback<ListItem>() {
-        override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-            return if(oldItem is ListItem.DefaultItem && newItem is ListItem.DefaultItem) oldItem.film.kinopoiskId == newItem.film.kinopoiskId
-            else false
+    private val diffUtil : DiffUtil.ItemCallback<BaseItem> = object : DiffUtil.ItemCallback<BaseItem>() {
+        override fun areItemsTheSame(oldItem: BaseItem, newItem: BaseItem): Boolean {
+            return oldItem.itemId  == newItem.itemId
         }
 
-        override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean = (oldItem == newItem)
+        override fun areContentsTheSame(oldItem: BaseItem, newItem: BaseItem): Boolean = (oldItem == newItem)
     }
 
     private val asyncListDiffer = AsyncListDiffer(this, diffUtil)
