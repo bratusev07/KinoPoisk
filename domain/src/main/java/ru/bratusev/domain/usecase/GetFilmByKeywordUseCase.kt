@@ -10,7 +10,7 @@ import java.io.IOException
 
 class GetFilmByKeywordUseCase(private val filmRepository: FilmRepository) {
 
-    operator fun invoke(keyword: String): Flow<Resource<ArrayList<Film>>> = flow {
+    operator fun invoke(keyword: String): Flow<Resource<List<Film>>> = flow {
         try {
             emit(Resource.Loading())
             val data = filmRepository.getFilmByKeyword(keyword)

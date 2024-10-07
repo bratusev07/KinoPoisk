@@ -5,14 +5,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.FilmDetail
 import ru.bratusev.domain.model.Frame
 import ru.bratusev.domain.usecase.GetFilmByIdUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
-import ru.bratusev.kinopoisk.presentation.items.BaseItem
 import ru.bratusev.kinopoisk.presentation.mapper.DetailScreenMapper
 
 class DetailViewModel(
@@ -20,11 +23,8 @@ class DetailViewModel(
     private val getFramesUseCase: GetFramesUseCase
 ) : ViewModel() {
 
-    private val _filmDetail = MutableLiveData<FilmDetail>()
-    val filmDetail: LiveData<FilmDetail> = _filmDetail
-
-    private val _frameList = MutableLiveData<List<BaseItem>>()
-    val frameList: LiveData<List<BaseItem>> = _frameList
+    private val _uiState = MutableStateFlow(DetailScreenState())
+    val uiState: StateFlow<DetailScreenState> = _uiState.asStateFlow()
 
     internal fun getFilmByIdRemote(kinopoiskId: Int) {
         getFilmByIdUseCase.invoke(kinopoiskId).onEach { result ->
@@ -34,7 +34,11 @@ class DetailViewModel(
 
     private fun handleFilmResult(result: Resource<FilmDetail>) {
         when (result) {
-            is Resource.Success -> _filmDetail.value = result.data as FilmDetail
+            is Resource.Success ->_uiState.update { currentState ->
+                currentState.copy(
+                    filmDetail = result.data as FilmDetail
+                )
+            }
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> logLoading()
         }
@@ -46,9 +50,11 @@ class DetailViewModel(
         }.launchIn(viewModelScope)
     }
 
-    private fun handleFramesResult(result: Resource<ArrayList<Frame>>) {
+    private fun handleFramesResult(result: Resource<List<Frame>>) {
         when (result) {
-            is Resource.Success -> _frameList.value = DetailScreenMapper().transform(result.data as ArrayList)
+            is Resource.Success -> _uiState.update { currentState ->
+                currentState.copy(frameList = DetailScreenMapper().transform(result.data.orEmpty()))
+            }
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> logLoading()
         }

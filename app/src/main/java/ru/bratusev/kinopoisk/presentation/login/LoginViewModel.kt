@@ -7,15 +7,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.UserData
 import ru.bratusev.domain.usecase.LoginUseCase
 class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
 
-    private val _loginState = MutableLiveData<Boolean>()
-    val loginState: LiveData<Boolean> = _loginState
+    private val _uiState = MutableStateFlow(LoginScreenState(loginState = false))
+    val uiState : StateFlow<LoginScreenState> = _uiState.asStateFlow()
 
     internal fun login(login: String, password: String) {
         loginUseCase.invoke(UserData(login, password)).onEach { result ->
@@ -25,7 +29,9 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
 
     private fun handleLoginResult(result: Resource<Boolean>) {
         when (result) {
-            is Resource.Success -> _loginState.value = result.data ?: false
+            is Resource.Success -> _uiState.update { currentState ->
+                currentState.copy(loginState = result.data ?: false)
+            }
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> logLoading()
         }

@@ -9,6 +9,6 @@ fun yearItemAdapterDelegate() = adapterDelegateViewBinding<YearItemUI, BaseItem,
     { layoutInflater, root -> ItemYearOfFilmBinding.inflate(layoutInflater, root, false) }
 ) {
     bind {
-        binding.textYear.text = item.itemId
+        binding.textYear.text = item.year
     }
 }

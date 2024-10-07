@@ -2,16 +2,15 @@ package ru.bratusev.kinopoisk.presentation.search
 
 import com.hannesdorfmann.adapterdelegates4.AsyncListDifferDelegationAdapter
 import ru.bratusev.kinopoisk.presentation.items.BaseItem
+import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 import ru.bratusev.kinopoisk.presentation.items.itemCallBack
 import ru.bratusev.kinopoisk.presentation.search.delegates.filmItemAdapterDelegates
 import ru.bratusev.kinopoisk.presentation.search.delegates.yearItemAdapterDelegate
 
-class FilmAdapter(
-    private val listener: OnItemClickListener
-) : AsyncListDifferDelegationAdapter<BaseItem>(diffUtil()) {
+class FilmAdapter(onItemClick: (FilmItemUI) -> Unit) : AsyncListDifferDelegationAdapter<BaseItem>(diffUtil()) {
 
     init {
-        delegatesManager.addDelegate(filmItemAdapterDelegates(listener::onItemClick))
+        delegatesManager.addDelegate(filmItemAdapterDelegates(onItemClick))
         delegatesManager.addDelegate(yearItemAdapterDelegate())
     }
 

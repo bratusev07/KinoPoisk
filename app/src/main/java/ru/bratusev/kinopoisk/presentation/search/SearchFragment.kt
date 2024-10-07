@@ -13,31 +13,38 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.NetworkUtils
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
-class SearchFragment : Fragment(), OnItemClickListener {
+class SearchFragment : Fragment() {
 
     private val vm: SearchViewModel by viewModel()
     private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var imageSortFilms: ImageView
     private lateinit var textStartYear: TextView
     private lateinit var textEndYear: TextView
     private lateinit var inputSearch: TextInputEditText
     private lateinit var progressLoad: ProgressBar
 
-    private val filmAdapter = FilmAdapter(this)
+    private val filmAdapter = FilmAdapter { film ->
+        onItemClick(film)
+    }
 
-    private var order: String = "RATING"
-    private var startYear: String = "1000"
-    private var endYear: String = "2024"
-    private var page: Int = 1
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setObservers()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,7 +60,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
 
     private fun loadInitialData() {
         if (NetworkUtils.isInternetAvailable(requireContext())) {
-            vm.getFilmsRemote(order, startYear, page, endYear)
+            vm.getFilmsRemote()
         }
     }
 
@@ -90,35 +97,29 @@ class SearchFragment : Fragment(), OnItemClickListener {
     }
 
     private fun setupSortButton(rootView: View) {
-        rootView.findViewById<ImageView>(R.id.image_sort).setOnClickListener {
-            page = 1
-            order = if(order == "RATING") "YEAR" else "RATING"
-            it.rotationY += 180
-            vm.getFilmsRemote(order, startYear, page, endYear, true)
+        imageSortFilms = rootView.findViewById<ImageView>(R.id.image_sort).apply {
+            setOnClickListener {
+                vm.sortFilms()
+            }
         }
     }
 
     private fun setupYearPicker(rootView: View) {
         textStartYear = rootView.findViewById<TextView>(R.id.startYearPicker).apply {
             setOnClickListener {
-                showYearPickerDialog(this)
+                showYearPickerDialog()
             }
         }
         textEndYear = rootView.findViewById<TextView>(R.id.endYearPicker).apply {
             setOnClickListener {
-                showYearPickerDialog(this, false)
+                showYearPickerDialog( false)
             }
         }
     }
 
-    private fun showYearPickerDialog(textView: TextView, isStart: Boolean = true) {
+    private fun showYearPickerDialog(isStart: Boolean = true) {
         val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
-            val year = selectedYear.toString()
-            textView.text = year
-            page = 1
-            if(isStart) startYear = year
-            else endYear = year
-            vm.getFilmsRemote(order, startYear, page, endYear,true)
+            vm.getFilmsByYear(selectedYear.toString(), isStart)
         }, 2024, 1, 1).apply {
             datePicker.maxDate = System.currentTimeMillis()
         }
@@ -128,8 +129,7 @@ class SearchFragment : Fragment(), OnItemClickListener {
     private fun setupSwipeRefresh(rootView: View) {
         swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films).apply {
             setOnRefreshListener {
-                page = 1
-                vm.getFilmsRemote(order, startYear, page, endYear, true)
+                vm.refreshFilms()
             }
         }
     }
@@ -158,9 +158,8 @@ class SearchFragment : Fragment(), OnItemClickListener {
             super.onScrolled(recyclerView, dx, dy)
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
-                if (inputSearch.text.isNullOrEmpty()) {
-                    vm.getFilmsRemote(order, startYear, ++page, endYear)
-                } else Toast.makeText(requireContext(),
+                if (inputSearch.text.isNullOrEmpty()) vm.getNextPage()
+                else Toast.makeText(requireContext(),
                     "Это все ответы найденые локально и удовлетворяющие вашему запросу",
                     Toast.LENGTH_SHORT)
                     .show()
@@ -169,13 +168,16 @@ class SearchFragment : Fragment(), OnItemClickListener {
     }
 
     private fun setObservers() {
-        vm.filmList.observe(viewLifecycleOwner) {
-            filmAdapter.items = it
-            swipeRefresh.isRefreshing = false
-        }
-
-        vm.isLoading.observe(viewLifecycleOwner) {
-            progressLoad.visibility = if (it) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    filmAdapter.items = it.filmList
+                    swipeRefresh.isRefreshing = it.isRefreshing
+                    progressLoad.visibility = if (it.isLoading) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
+                    imageSortFilms.rotationY = it.rotationSortIcon
+                    textStartYear.text = it.params.year
+                    textEndYear.text = it.params.endYear
+                }
         }
     }
 
@@ -185,14 +187,14 @@ class SearchFragment : Fragment(), OnItemClickListener {
         } catch (_: RuntimeException) { }
     }
 
-    override fun onItemClick(film: FilmItemUI) {
+    private fun onItemClick(film: FilmItemUI) {
         val bundle = Bundle().apply {
             putString("banner", film.posterUrl)
             putString("rating", film.ratingKinopoisk.toString())
             putString("name", film.name)
             putInt("kinopoiskId", film.itemId.toInt())
             putString("genre", film.genre)
-            putString("country", film.country)
+            putString("date", film.date)
         }
         try {
             findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)

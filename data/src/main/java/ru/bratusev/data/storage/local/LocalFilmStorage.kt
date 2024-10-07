@@ -6,7 +6,7 @@ interface LocalFilmStorage {
 
     suspend fun insertFilmIntoDB(filmEntity: FilmEntity): Boolean
 
-    suspend fun getFilmsFromDB(): ArrayList<FilmEntity>
+    suspend fun getFilmsFromDB(): List<FilmEntity>
 
-    suspend fun getFilmByKeyword(keyword: String): ArrayList<FilmEntity>
+    suspend fun getFilmByKeyword(keyword: String): List<FilmEntity>
 }

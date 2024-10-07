@@ -8,7 +8,7 @@ import ru.bratusev.kinopoisk.presentation.items.BaseItem
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
 fun filmItemAdapterDelegates(
-    onItemClick : (FilmItemUI) -> Unit
+    onItemClick: (FilmItemUI) -> Unit
 ) = adapterDelegateViewBinding<FilmItemUI, BaseItem, ItemFilmBinding>(
     { layoutInflater, root -> ItemFilmBinding.inflate(layoutInflater, root, false) }
 ) {
@@ -22,7 +22,7 @@ fun filmItemAdapterDelegates(
                 .into(imageFilm)
             textName.text = item.name
             textGenre.text = item.genre
-            textDate.text = "${item.year}, ${item.country}"
+            textDate.text = item.date
             textRating.text = item.ratingKinopoisk.toString()
         }
     }
