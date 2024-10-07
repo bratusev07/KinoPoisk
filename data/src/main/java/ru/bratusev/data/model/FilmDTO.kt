@@ -7,8 +7,8 @@ data class FilmDTO(
     val nameRu: String?,
     val nameEn: String?,
     val nameOriginal: String?,
-    val countries: ArrayList<Country>?,
-    val genres: ArrayList<Genre>?,
+    val countries: List<Country>?,
+    val genres: List<Genre>?,
     val ratingKinopoisk: Float?,
     val year: Int?,
     val posterUrl: String?,
@@ -57,6 +57,6 @@ fun FilmDTO.toFilm(): Film {
         year = year ?: 0,
         posterUrl = posterUrl ?: "нет данных",
         posterUrlPreview = posterUrlPreview ?: "нет данных",
-        frameList = arrayListOf()
+        frameList = listOf()
     )
 }

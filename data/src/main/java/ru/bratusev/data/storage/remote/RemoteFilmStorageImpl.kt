@@ -1,20 +1,18 @@
 package ru.bratusev.data.storage.remote
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import ru.bratusev.data.model.FilmDTO
 import ru.bratusev.data.model.FilmDetailDTO
+import ru.bratusev.data.model.FilmRequestParams
 import ru.bratusev.data.model.FrameDTO
 import ru.bratusev.data.storage.remote.common.Common
 
 class RemoteFilmStorageImpl : RemoteFilmStorage {
 
-    override suspend fun getFilmsRemote(order: String, year: String, page: Int, endYear: String): ArrayList<FilmDTO> {
-        return Common.retrofitService.getFilms(order, year, page, endYear).items
-
+    override suspend fun getFilmsRemote(params: FilmRequestParams): List<FilmDTO> {
+        return Common.retrofitService.getFilms(params.order, params.year, params.page, params.endYear).items
     }
 
-    override suspend fun getFilmsByKeywordRemote(keyword: String): ArrayList<FilmDTO> {
+    override suspend fun getFilmsByKeywordRemote(keyword: String): List<FilmDTO> {
         return Common.retrofitService.getFilmsByKeyword(keyword).items
     }
 
@@ -22,7 +20,7 @@ class RemoteFilmStorageImpl : RemoteFilmStorage {
         return Common.retrofitService.getFilmById(kinopoiskId)
     }
 
-    override suspend fun getFilmFramesRemote(kinopoiskId: Int): ArrayList<FrameDTO> {
+    override suspend fun getFilmFramesRemote(kinopoiskId: Int): List<FrameDTO> {
         return Common.retrofitService.getFilmFrames(kinopoiskId).items
     }
 }
