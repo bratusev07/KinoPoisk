@@ -30,6 +30,6 @@ fun FilmEntity.toFilm(): Film {
         year = releaseYear.toInt(),
         posterUrl = posterUrlPreview,
         posterUrlPreview = posterUrlPreview,
-        frameList = arrayListOf()
+        frameList = listOf()
     )
 }

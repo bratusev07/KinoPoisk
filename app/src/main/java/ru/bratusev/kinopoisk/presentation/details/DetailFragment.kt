@@ -13,10 +13,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.domain.model.Frame
 import ru.bratusev.kinopoisk.R
@@ -30,6 +34,11 @@ class DetailFragment : Fragment() {
     private lateinit var textDescription: TextView
     private lateinit var textDate: TextView
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setObservers()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,7 +47,6 @@ class DetailFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_detail, container, false).apply {
             configureViews(this)
             activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-            setObservers()
             loadFilmData()
         }
     }
@@ -50,11 +58,15 @@ class DetailFragment : Fragment() {
     }
 
     private fun setObservers() {
-        vm.frameList.observe(viewLifecycleOwner) { frameAdapter.items = it }
-        vm.filmDetail.observe(viewLifecycleOwner) { filmDetail ->
-            textDescription.text = filmDetail.description
-            textDate.text = "${filmDetail.startYear}-${filmDetail.endYear}, ${textDate.text}"
-            webUrl = filmDetail.webUrl
+        viewLifecycleOwner.lifecycleScope.launch {
+            vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    frameAdapter.items = it.frameList
+                    val filmDetail = it.filmDetail
+                    textDescription.text = filmDetail.description
+                    textDate.text = textDate.text
+                    webUrl = filmDetail.webUrl
+                }
         }
     }
 
@@ -81,7 +93,7 @@ class DetailFragment : Fragment() {
         textDescription = rootView.findViewById(R.id.text_description)
         rootView.findViewById<TextView>(R.id.text_genre).text = arguments?.getString("genre") ?: "Нет данных"
         textDate = rootView.findViewById<TextView>(R.id.text_date).apply {
-            text = arguments?.getString("country") ?: "Нет данных"
+            text = arguments?.getString("date") ?: "Нет данных"
         }
     }
 

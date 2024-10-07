@@ -10,7 +10,7 @@ import java.io.IOException
 
 class GetFramesUseCase(private val filmRepository: FilmRepository) {
 
-    operator fun invoke(kinopoiskId: Int): Flow<Resource<ArrayList<Frame>>> = flow {
+    operator fun invoke(kinopoiskId: Int): Flow<Resource<List<Frame>>> = flow {
         try {
             emit(Resource.Loading())
             val data = filmRepository.getFilmFrames(kinopoiskId)

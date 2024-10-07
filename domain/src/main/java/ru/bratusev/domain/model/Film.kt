@@ -9,5 +9,5 @@ data class Film(
     val year: Int,
     val posterUrl: String,
     val posterUrlPreview: String,
-    val frameList: ArrayList<String>
+    val frameList: List<String>
 )

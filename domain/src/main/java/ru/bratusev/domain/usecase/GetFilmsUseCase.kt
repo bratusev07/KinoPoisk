@@ -5,15 +5,16 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.Film
+import ru.bratusev.domain.model.FilmRequestParams
 import ru.bratusev.domain.repository.FilmRepository
 import java.io.IOException
 
 class GetFilmsUseCase(private val filmRepository: FilmRepository) {
 
-    operator fun invoke(order: String, year: String, page: Int, endYear: String): Flow<Resource<ArrayList<Film>>> = flow {
+    operator fun invoke(params: FilmRequestParams): Flow<Resource<List<Film>>> = flow {
         try {
             emit(Resource.Loading())
-            val data = filmRepository.getFilms(order, year, page, endYear)
+            val data = filmRepository.getFilms(params)
             emit(Resource.Success(data))
             data.forEach { filmRepository.insertFilmIntoDB(it) }
         } catch (e: HttpException) {

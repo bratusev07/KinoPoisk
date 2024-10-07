@@ -14,15 +14,15 @@ class FilmStorageImpl(private val filmDB: FilmDataBase): LocalFilmStorage {
         return true
     }
 
-    override suspend fun getFilmsFromDB(): ArrayList<FilmEntity> {
+    override suspend fun getFilmsFromDB(): List<FilmEntity> {
         return withContext(Dispatchers.IO){
-            filmDB.getFilmDao().getFilms() as ArrayList
+            filmDB.getFilmDao().getFilms()
         }
     }
 
-    override suspend fun getFilmByKeyword(keyword: String): ArrayList<FilmEntity> {
+    override suspend fun getFilmByKeyword(keyword: String): List<FilmEntity> {
         return withContext(Dispatchers.IO){
-            filmDB.getFilmDao().getFilmsByKeyword(keyword) as ArrayList
+            filmDB.getFilmDao().getFilmsByKeyword(keyword)
         }
     }
 

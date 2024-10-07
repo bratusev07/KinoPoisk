@@ -8,8 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.NetworkUtils
@@ -54,11 +58,13 @@ class LoginFragment : Fragment() {
     }
 
     private fun observeLoginState() {
-        vm.loginState.observe(viewLifecycleOwner) { isLoggedIn ->
-            if (isLoggedIn == true) {
-                navigateToSearchFragment()
-            } else {
-                showPasswordErrorAlert()
+        viewLifecycleOwner.lifecycleScope.launch {
+            vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect{
+                if (it.loginState) {
+                    navigateToSearchFragment()
+                } else {
+                    showPasswordErrorAlert()
+                }
             }
         }
     }
