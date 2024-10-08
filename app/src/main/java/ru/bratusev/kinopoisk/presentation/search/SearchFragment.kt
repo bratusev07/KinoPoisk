@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -19,6 +21,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
+import ru.bratusev.kinopoisk.common.DistinctTextWatcher
 import ru.bratusev.kinopoisk.common.NetworkUtils
 import ru.bratusev.kinopoisk.databinding.FragmentSearchBinding
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
@@ -41,7 +44,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private fun loadInitialData() {
         if (NetworkUtils.isInternetAvailable(requireContext())) {
-            vm.getFilmsRemote()
+            vm.handleEvent(SearchEvent.OnFragmentStart)
         }
     }
 
@@ -57,38 +60,32 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private fun setupLogoutButton() {
         viewBinding.imageLogout.setOnClickListener {
-            navigateToLoginFragment()
+            vm.handleEvent(SearchEvent.OnClickBack)
         }
     }
 
     private fun setupSearchInput() {
-        viewBinding.inputSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                vm.searchFilms(s.toString())
-            }
-        })
+        viewBinding.inputSearch.doOnTextUpdated { vm.handleEvent(SearchEvent.OnSearchFilms(it)) }
     }
 
     private fun setupSortButton() {
         viewBinding.imageSort.setOnClickListener {
-            vm.sortFilms()
+            vm.handleEvent(SearchEvent.OnSort)
         }
     }
 
     private fun setupYearPicker() {
         viewBinding.startYearPicker.setOnClickListener {
-            showYearPickerDialog()
+            vm.handleEvent(SearchEvent.OnClickYearPicker(true))
         }
         viewBinding.endYearPicker.setOnClickListener {
-            showYearPickerDialog(false)
+            vm.handleEvent(SearchEvent.OnClickYearPicker(false))
         }
     }
 
     private fun showYearPickerDialog(isStart: Boolean = true) {
         val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
-            vm.getFilmsByYear(selectedYear.toString(), isStart)
+            vm.handleEvent(SearchEvent.OnYearSelected(selectedYear.toString(), isStart))
         }, 2024, 1, 1).apply {
             datePicker.maxDate = System.currentTimeMillis()
         }
@@ -97,7 +94,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private fun setupSwipeRefresh() {
         viewBinding.swipeRefreshFilms.setOnRefreshListener {
-            vm.refreshFilms()
+            vm.handleEvent(SearchEvent.OnRefresh)
         }
     }
 
@@ -114,7 +111,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    navigateToLoginFragment()
+                    vm.handleEvent(SearchEvent.OnClickBack)
                 }
             }
         )
@@ -125,23 +122,28 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             super.onScrolled(recyclerView, dx, dy)
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
-                if (viewBinding.inputSearch.text.isNullOrEmpty()) vm.getNextPage()
-                else Toast.makeText(requireContext(),
-                    "Это все ответы найденые локально и удовлетворяющие вашему запросу",
-                    Toast.LENGTH_SHORT)
-                    .show()
+                vm.handleEvent(SearchEvent.OnScrollDown(viewBinding.inputSearch.text.toString()))
             }
         }
     }
 
     private fun setObservers() {
+        vm.uiLabels.observe(viewLifecycleOwner) {
+            when (it) {
+                SearchLabel.GoToPrevious -> navigateToLoginFragment()
+                is SearchLabel.GoToNext -> navigateToDetailFragment(it.bundle)
+                is SearchLabel.ShowDatePicker -> showYearPickerDialog(it.isStart)
+                is SearchLabel.ShowToast -> showToast(it.message)
+            }
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
                 .collect {
                     filmAdapter.items = it.filmList
-                    with(viewBinding){
+                    with(viewBinding) {
                         swipeRefreshFilms.isRefreshing = it.isRefreshing
-                        progressLoad.visibility = if (it.isLoading) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
+                        progressLoad.visibility =
+                            if (it.isLoading) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
                         imageSort.rotationY = it.rotationSortIcon
                         startYearPicker.text = it.params.year
                         endYearPicker.text = it.params.endYear
@@ -150,23 +152,36 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
     }
 
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun navigateToLoginFragment() {
         try {
             findNavController().navigate(R.id.action_searchFragment_to_loginFragment)
-        } catch (_: RuntimeException) { }
+        } catch (_: RuntimeException) {
+        }
+    }
+
+    private fun navigateToDetailFragment(bundle: Bundle) {
+        try {
+            findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
+        } catch (_: RuntimeException) {
+        }
     }
 
     private fun onItemClick(film: FilmItemUI) {
-        val bundle = Bundle().apply {
+        vm.handleEvent(SearchEvent.OnClickFilmItem(Bundle().apply {
             putString("banner", film.posterUrl)
             putString("rating", film.ratingKinopoisk.toString())
             putString("name", film.name)
             putInt("kinopoiskId", film.itemId.toInt())
             putString("genre", film.genre)
             putString("date", film.date)
-        }
-        try {
-            findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
-        } catch (_: RuntimeException) { }
+        }))
+    }
+
+    private fun EditText.doOnTextUpdated(action: (String) -> Unit) {
+        addTextChangedListener(DistinctTextWatcher(action))
     }
 }

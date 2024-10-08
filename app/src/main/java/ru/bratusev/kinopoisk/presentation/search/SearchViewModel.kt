@@ -1,6 +1,7 @@
 package ru.bratusev.kinopoisk.presentation.search
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,9 @@ import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
+import ru.bratusev.kinopoisk.common.SingleLiveEvent
+import ru.bratusev.kinopoisk.presentation.details.DetailEvent
+import ru.bratusev.kinopoisk.presentation.details.DetailLabel
 import ru.bratusev.kinopoisk.presentation.mapper.SearchScreenMapper
 
 class SearchViewModel(
@@ -23,14 +27,17 @@ class SearchViewModel(
     private val _uiState = MutableStateFlow(SearchScreenState())
     val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
 
-    internal fun getFilmsRemote() {
+    private val _uiLabels = SingleLiveEvent<SearchLabel>()
+    val uiLabels: LiveData<SearchLabel> get() = _uiLabels
+
+    private fun getFilmsRemote() {
         val params = uiState.value.params
         getFilmsUseCase.invoke(params).onEach { result ->
             handleFilmResult(result, params.needUpdate)
         }.launchIn(viewModelScope)
     }
 
-    internal fun searchFilms(keyword: String) {
+    private fun searchFilms(keyword: String) {
         getFilmByKeywordUseCase.invoke(keyword).onEach { result ->
             handleSearchResult(result)
         }.launchIn(viewModelScope)
@@ -95,7 +102,7 @@ class SearchViewModel(
         Log.d("SearchViewModel", "Resource.Loading")
     }
 
-    internal fun sortFilms() {
+    private fun sortFilms() {
         with(uiState.value) {
             params.page = 1
             params.order = if (params.order == "RATING") "YEAR" else "RATING"
@@ -105,7 +112,7 @@ class SearchViewModel(
         getFilmsRemote()
     }
 
-    internal fun getFilmsByYear(selectedYear: String, isStart: Boolean) {
+    private fun getFilmsByYear(selectedYear: String, isStart: Boolean) {
         with(uiState.value.params) {
             page = 1
             if (isStart) year = selectedYear
@@ -115,7 +122,7 @@ class SearchViewModel(
         getFilmsRemote()
     }
 
-    internal fun refreshFilms() {
+    private fun refreshFilms() {
         with(uiState.value.params) {
             page = 1
             needUpdate = true
@@ -124,8 +131,27 @@ class SearchViewModel(
         getFilmsRemote()
     }
 
-    internal fun getNextPage() {
+    private fun getNextPage() {
         ++uiState.value.params.page
         getFilmsRemote()
+    }
+
+    internal fun handleEvent(event: SearchEvent) {
+        when(event){
+            is SearchEvent.OnClickBack -> _uiLabels.value = SearchLabel.GoToPrevious
+            is SearchEvent.OnClickFilmItem -> _uiLabels.value = SearchLabel.GoToNext(event.bundle)
+            is SearchEvent.OnClickYearPicker -> _uiLabels.value = SearchLabel.ShowDatePicker(event.isStart)
+            SearchEvent.OnRefresh -> refreshFilms()
+            is SearchEvent.OnScrollDown -> handelOnScrollDown(event.inputSearch)
+            SearchEvent.OnSort -> sortFilms()
+            SearchEvent.OnFragmentStart -> getFilmsRemote()
+            is SearchEvent.OnSearchFilms -> searchFilms(event.inputSearch)
+            is SearchEvent.OnYearSelected -> getFilmsByYear(event.selectedYear, event.isStart)
+        }
+    }
+
+    private fun handelOnScrollDown(inputSearch: String) {
+        if (inputSearch.isEmpty()) getNextPage()
+        else _uiLabels.value = SearchLabel.ShowToast("Это все ответы найденые локально и удовлетворяющие вашему запросу")
     }
 }
