@@ -6,14 +6,18 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.findNavController
+import by.kirich1409.viewbindingdelegate.viewBinding
+import ru.bratusev.kinopoisk.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    private val viewBinding: ActivityMainBinding by viewBinding()
+
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        findNavController(R.id.nav_host_fragment)
+        with(viewBinding){
+            mainFragmentContainer
+        }
     }
 }

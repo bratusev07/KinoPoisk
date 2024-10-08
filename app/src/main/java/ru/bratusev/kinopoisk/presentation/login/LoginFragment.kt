@@ -3,43 +3,32 @@ package ru.bratusev.kinopoisk.presentation.login
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.textfield.TextInputEditText
+import by.kirich1409.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.NetworkUtils
+import ru.bratusev.kinopoisk.databinding.FragmentLoginBinding
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private val vm: LoginViewModel by viewModel<LoginViewModel>()
+    private val viewBinding: FragmentLoginBinding by viewBinding()
 
-    private lateinit var inputPassword: TextInputEditText
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false).apply {
-            configureViews(this)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        configureViews()
     }
 
-    private fun configureViews(rootView: View) {
-        val inputLogin = rootView.findViewById<TextInputEditText>(R.id.input_login)
-        inputPassword = rootView.findViewById(R.id.input_password)
-
-        rootView.findViewById<AppCompatButton>(R.id.button_login).setOnClickListener {
-            handleLogin(inputLogin.text.toString(), inputPassword.text.toString())
+    private fun configureViews() {
+        viewBinding.buttonLogin.setOnClickListener {
+            handleLogin(viewBinding.inputLogin.text.toString(), viewBinding.inputPassword.text.toString())
         }
     }
 

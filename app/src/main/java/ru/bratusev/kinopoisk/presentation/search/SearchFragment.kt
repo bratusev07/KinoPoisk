@@ -4,12 +4,8 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -19,23 +15,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.textfield.TextInputEditText
+import by.kirich1409.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.NetworkUtils
+import ru.bratusev.kinopoisk.databinding.FragmentSearchBinding
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
-class SearchFragment : Fragment() {
+class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private val vm: SearchViewModel by viewModel()
-    private lateinit var swipeRefresh: SwipeRefreshLayout
-    private lateinit var imageSortFilms: ImageView
-    private lateinit var textStartYear: TextView
-    private lateinit var textEndYear: TextView
-    private lateinit var inputSearch: TextInputEditText
-    private lateinit var progressLoad: ProgressBar
+    private val viewBinding: FragmentSearchBinding by viewBinding()
 
     private val filmAdapter = FilmAdapter { film ->
         onItemClick(film)
@@ -43,19 +34,9 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        configureViews()
         setObservers()
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_search, container, false).apply {
-            configureViews(this)
-            setObservers()
-            loadInitialData()
-        }
+        loadInitialData()
     }
 
     private fun loadInitialData() {
@@ -64,30 +45,24 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun configureViews(rootView: View) {
-        setupLogoutButton(rootView)
-        setupProgressBar(rootView)
-        setupSearchInput(rootView)
-        setupSortButton(rootView)
-        setupYearPicker(rootView)
-        setupSwipeRefresh(rootView)
-        setupRecyclerView(rootView)
+    private fun configureViews() {
+        setupLogoutButton()
+        setupSearchInput()
+        setupSortButton()
+        setupYearPicker()
+        setupSwipeRefresh()
+        setupRecyclerView()
         setupBackPressHandler()
     }
 
-    private fun setupLogoutButton(rootView: View) {
-        rootView.findViewById<ImageView>(R.id.image_logout).setOnClickListener {
+    private fun setupLogoutButton() {
+        viewBinding.imageLogout.setOnClickListener {
             navigateToLoginFragment()
         }
     }
 
-    private fun setupProgressBar(rootView: View) {
-        progressLoad = rootView.findViewById(R.id.progressLoad)
-    }
-
-    private fun setupSearchInput(rootView: View) {
-        inputSearch = rootView.findViewById(R.id.input_search)
-        inputSearch.addTextChangedListener(object : TextWatcher {
+    private fun setupSearchInput() {
+        viewBinding.inputSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -96,24 +71,18 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private fun setupSortButton(rootView: View) {
-        imageSortFilms = rootView.findViewById<ImageView>(R.id.image_sort).apply {
-            setOnClickListener {
-                vm.sortFilms()
-            }
+    private fun setupSortButton() {
+        viewBinding.imageSort.setOnClickListener {
+            vm.sortFilms()
         }
     }
 
-    private fun setupYearPicker(rootView: View) {
-        textStartYear = rootView.findViewById<TextView>(R.id.startYearPicker).apply {
-            setOnClickListener {
-                showYearPickerDialog()
-            }
+    private fun setupYearPicker() {
+        viewBinding.startYearPicker.setOnClickListener {
+            showYearPickerDialog()
         }
-        textEndYear = rootView.findViewById<TextView>(R.id.endYearPicker).apply {
-            setOnClickListener {
-                showYearPickerDialog( false)
-            }
+        viewBinding.endYearPicker.setOnClickListener {
+            showYearPickerDialog(false)
         }
     }
 
@@ -126,16 +95,14 @@ class SearchFragment : Fragment() {
         dataPicker.show()
     }
 
-    private fun setupSwipeRefresh(rootView: View) {
-        swipeRefresh = rootView.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_films).apply {
-            setOnRefreshListener {
-                vm.refreshFilms()
-            }
+    private fun setupSwipeRefresh() {
+        viewBinding.swipeRefreshFilms.setOnRefreshListener {
+            vm.refreshFilms()
         }
     }
 
-    private fun setupRecyclerView(rootView: View) {
-        rootView.findViewById<RecyclerView>(R.id.recycler_films).apply {
+    private fun setupRecyclerView() {
+        viewBinding.recyclerFilms.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = filmAdapter
             addOnScrollListener(onScroll)
@@ -158,7 +125,7 @@ class SearchFragment : Fragment() {
             super.onScrolled(recyclerView, dx, dy)
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
-                if (inputSearch.text.isNullOrEmpty()) vm.getNextPage()
+                if (viewBinding.inputSearch.text.isNullOrEmpty()) vm.getNextPage()
                 else Toast.makeText(requireContext(),
                     "Это все ответы найденые локально и удовлетворяющие вашему запросу",
                     Toast.LENGTH_SHORT)
@@ -172,11 +139,13 @@ class SearchFragment : Fragment() {
             vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
                 .collect {
                     filmAdapter.items = it.filmList
-                    swipeRefresh.isRefreshing = it.isRefreshing
-                    progressLoad.visibility = if (it.isLoading) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
-                    imageSortFilms.rotationY = it.rotationSortIcon
-                    textStartYear.text = it.params.year
-                    textEndYear.text = it.params.endYear
+                    with(viewBinding){
+                        swipeRefreshFilms.isRefreshing = it.isRefreshing
+                        progressLoad.visibility = if (it.isLoading) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
+                        imageSort.rotationY = it.rotationSortIcon
+                        startYearPicker.text = it.params.year
+                        endYearPicker.text = it.params.endYear
+                    }
                 }
         }
     }

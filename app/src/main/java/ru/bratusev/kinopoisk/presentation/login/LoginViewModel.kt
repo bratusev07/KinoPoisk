@@ -3,8 +3,6 @@ package ru.bratusev.kinopoisk.presentation.login
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import ru.bratusev.domain.Resource
 import ru.bratusev.domain.model.UserData
 import ru.bratusev.domain.usecase.LoginUseCase
+
 class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginScreenState(loginState = false))
