@@ -6,7 +6,6 @@ import ru.bratusev.data.model.FilmRequestParams
 import ru.bratusev.data.model.FrameDTO
 
 interface RemoteFilmStorage {
-
     suspend fun getFilmsRemote(params: FilmRequestParams): List<FilmDTO>
 
     suspend fun getFilmsByKeywordRemote(keyword: String): List<FilmDTO>

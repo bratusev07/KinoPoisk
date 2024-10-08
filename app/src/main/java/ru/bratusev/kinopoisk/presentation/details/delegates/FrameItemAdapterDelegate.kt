@@ -7,14 +7,16 @@ import ru.bratusev.kinopoisk.databinding.ItemFrameBinding
 import ru.bratusev.kinopoisk.presentation.items.BaseItem
 import ru.bratusev.kinopoisk.presentation.items.FrameItemUI
 
-fun frameItemAdapterDelegate() = adapterDelegateViewBinding<FrameItemUI, BaseItem, ItemFrameBinding>(
-    { layoutInflater, root -> ItemFrameBinding.inflate(layoutInflater, root, false) }
-) {
-    bind {
-        Glide.with(binding.imageFrame)
-            .load(item.imageUrl)
-            .error(R.drawable.ic_placeholder)
-            .placeholder(R.drawable.ic_placeholder)
-            .into(binding.imageFrame)
+fun frameItemAdapterDelegate() =
+    adapterDelegateViewBinding<FrameItemUI, BaseItem, ItemFrameBinding>(
+        { layoutInflater, root -> ItemFrameBinding.inflate(layoutInflater, root, false) },
+    ) {
+        bind {
+            Glide
+                .with(binding.imageFrame)
+                .load(item.imageUrl)
+                .error(R.drawable.ic_placeholder)
+                .placeholder(R.drawable.ic_placeholder)
+                .into(binding.imageFrame)
+        }
     }
-}

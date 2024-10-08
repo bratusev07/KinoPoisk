@@ -17,11 +17,11 @@ data class FilmEntity(
     val releaseYear: String,
     @ColumnInfo(defaultValue = "нет данных") val startYear: String?,
     @ColumnInfo(defaultValue = "нет данных") val endYear: String?,
-    val posterUrlPreview: String
+    val posterUrlPreview: String,
 )
 
-fun FilmEntity.toFilm(): Film {
-    return Film(
+fun FilmEntity.toFilm(): Film =
+    Film(
         kinopoiskId = kinopoiskId,
         name = name,
         country = countries,
@@ -30,6 +30,5 @@ fun FilmEntity.toFilm(): Film {
         year = releaseYear.toInt(),
         posterUrl = posterUrlPreview,
         posterUrlPreview = posterUrlPreview,
-        frameList = listOf()
+        frameList = listOf(),
     )
-}

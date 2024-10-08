@@ -6,23 +6,24 @@ import ru.bratusev.kinopoisk.presentation.details.DetailViewModel
 import ru.bratusev.kinopoisk.presentation.login.LoginViewModel
 import ru.bratusev.kinopoisk.presentation.search.SearchViewModel
 
-val appModule = module {
+val appModule =
+    module {
 
-    viewModel<LoginViewModel> {
-        LoginViewModel(loginUseCase = get())
-    }
+        viewModel<LoginViewModel> {
+            LoginViewModel(loginUseCase = get())
+        }
 
-    viewModel<SearchViewModel> {
-        SearchViewModel(
-            getFilmsUseCase = get(),
-            getFilmByKeywordUseCase = get()
-        )
-    }
+        viewModel<SearchViewModel> {
+            SearchViewModel(
+                getFilmsUseCase = get(),
+                getFilmByKeywordUseCase = get(),
+            )
+        }
 
-    viewModel<DetailViewModel> {
-        DetailViewModel(
-            getFilmByIdUseCase = get(),
-            getFramesUseCase = get()
-        )
+        viewModel<DetailViewModel> {
+            DetailViewModel(
+                getFilmByIdUseCase = get(),
+                getFramesUseCase = get(),
+            )
+        }
     }
-}

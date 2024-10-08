@@ -16,14 +16,12 @@ import ru.bratusev.domain.model.Frame
 import ru.bratusev.domain.usecase.GetFilmByIdUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
 import ru.bratusev.kinopoisk.common.SingleLiveEvent
-import ru.bratusev.kinopoisk.presentation.login.LoginEvent
 import ru.bratusev.kinopoisk.presentation.mapper.DetailScreenMapper
 
 class DetailViewModel(
     private val getFilmByIdUseCase: GetFilmByIdUseCase,
-    private val getFramesUseCase: GetFramesUseCase
+    private val getFramesUseCase: GetFramesUseCase,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(DetailScreenState())
     val uiState: StateFlow<DetailScreenState> = _uiState.asStateFlow()
 
@@ -31,34 +29,40 @@ class DetailViewModel(
     val uiLabels: LiveData<DetailLabel> get() = _uiLabels
 
     private fun getFilmByIdRemote(kinopoiskId: Int) {
-        getFilmByIdUseCase.invoke(kinopoiskId).onEach { result ->
-            handleFilmResult(result)
-        }.launchIn(viewModelScope)
+        getFilmByIdUseCase
+            .invoke(kinopoiskId)
+            .onEach { result ->
+                handleFilmResult(result)
+            }.launchIn(viewModelScope)
     }
 
     private fun handleFilmResult(result: Resource<FilmDetail>) {
         when (result) {
-            is Resource.Success ->_uiState.update { currentState ->
-                currentState.copy(
-                    filmDetail = result.data as FilmDetail
-                )
-            }
+            is Resource.Success ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        filmDetail = result.data as FilmDetail,
+                    )
+                }
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> logLoading()
         }
     }
 
     private fun getFramesRemote(kinopoiskId: Int) {
-        getFramesUseCase.invoke(kinopoiskId).onEach { result ->
-            handleFramesResult(result)
-        }.launchIn(viewModelScope)
+        getFramesUseCase
+            .invoke(kinopoiskId)
+            .onEach { result ->
+                handleFramesResult(result)
+            }.launchIn(viewModelScope)
     }
 
     private fun handleFramesResult(result: Resource<List<Frame>>) {
         when (result) {
-            is Resource.Success -> _uiState.update { currentState ->
-                currentState.copy(frameList = DetailScreenMapper().transform(result.data.orEmpty()))
-            }
+            is Resource.Success ->
+                _uiState.update { currentState ->
+                    currentState.copy(frameList = DetailScreenMapper().transform(result.data.orEmpty()))
+                }
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> logLoading()
         }
@@ -78,7 +82,7 @@ class DetailViewModel(
     }
 
     internal fun handleEvent(event: DetailEvent) {
-        when(event){
+        when (event) {
             is DetailEvent.OnClickWebUrl -> _uiLabels.value = DetailLabel.OpenUrl(event.webUrl)
             is DetailEvent.OnClickBack -> _uiLabels.value = DetailLabel.GoToPrevious
             is DetailEvent.OnFragmentStart -> loadFilmData(event.kinopoiskId)

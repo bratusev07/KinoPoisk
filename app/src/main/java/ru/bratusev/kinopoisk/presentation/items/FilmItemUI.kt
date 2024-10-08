@@ -8,5 +8,5 @@ data class FilmItemUI(
     val ratingKinopoisk: Float,
     val posterUrl: String,
     val posterUrlPreview: String,
-    val frameList: List<String>
+    val frameList: List<String>,
 ) : BaseItem
