@@ -16,6 +16,7 @@ import ru.bratusev.kinopoisk.databinding.FragmentLoginBinding
 @AndroidEntryPoint
 class LoginFragment : Fragment(R.layout.fragment_login) {
     private val vm by viewModels<LoginViewModel>()
+
     private val viewBinding: FragmentLoginBinding by viewBinding()
 
     override fun onViewCreated(

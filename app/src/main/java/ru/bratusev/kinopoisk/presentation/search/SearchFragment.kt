@@ -27,6 +27,7 @@ import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 @AndroidEntryPoint
 class SearchFragment : Fragment(R.layout.fragment_search) {
     private val vm by viewModels<SearchViewModel>()
+
     private val viewBinding: FragmentSearchBinding by viewBinding()
 
     private val filmAdapter =

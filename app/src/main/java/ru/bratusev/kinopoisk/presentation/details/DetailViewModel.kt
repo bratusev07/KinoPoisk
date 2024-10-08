@@ -71,6 +71,7 @@ class DetailViewModel
                 is Resource.Error -> logError(result.message)
                 is Resource.Loading -> logLoading()
             }
+
         }
 
         private fun logError(message: String?) {

@@ -25,6 +25,7 @@ import ru.bratusev.kinopoisk.databinding.FragmentDetailBinding
 @AndroidEntryPoint
 class DetailFragment : Fragment(R.layout.fragment_detail) {
     private val vm by viewModels<DetailViewModel>()
+
     private val viewBinding: FragmentDetailBinding by viewBinding()
     private val frameAdapter = FrameScreenAdapter()
 

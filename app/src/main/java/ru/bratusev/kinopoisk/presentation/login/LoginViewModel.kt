@@ -59,6 +59,7 @@ class LoginViewModel
             when (event) {
                 is LoginEvent.OnClickLogin -> handleLoginEvent(event.login, event.password)
             }
+
         }
 
         private fun handleLoginEvent(
