@@ -10,7 +10,6 @@ import ru.bratusev.kinopoisk.di.dataModule
 import ru.bratusev.kinopoisk.di.domainModule
 
 class App : Application() {
-
     override fun onCreate() {
         super.onCreate()
 

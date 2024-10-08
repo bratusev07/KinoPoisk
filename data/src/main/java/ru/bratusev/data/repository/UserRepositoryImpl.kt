@@ -6,11 +6,10 @@ import ru.bratusev.data.storage.local.UserStorage
 import ru.bratusev.domain.model.UserData
 import ru.bratusev.domain.repository.UserRepository
 
-class UserRepositoryImpl(private val userStorage: UserStorage) : UserRepository {
-
-    override fun getUserData(): UserData {
-        return userStorage.getUser().toUserData()
-    }
+class UserRepositoryImpl(
+    private val userStorage: UserStorage,
+) : UserRepository {
+    override fun getUserData(): UserData = userStorage.getUser().toUserData()
 
     override fun saveUserData(userData: UserData) {
         userStorage.saveUser(UserDTO(login = userData.login, password = userData.password))

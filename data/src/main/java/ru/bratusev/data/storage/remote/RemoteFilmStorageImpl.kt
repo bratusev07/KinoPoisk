@@ -7,20 +7,12 @@ import ru.bratusev.data.model.FrameDTO
 import ru.bratusev.data.storage.remote.common.Common
 
 class RemoteFilmStorageImpl : RemoteFilmStorage {
+    override suspend fun getFilmsRemote(params: FilmRequestParams): List<FilmDTO> =
+        Common.retrofitService.getFilms(params.order, params.year, params.page, params.endYear).items
 
-    override suspend fun getFilmsRemote(params: FilmRequestParams): List<FilmDTO> {
-        return Common.retrofitService.getFilms(params.order, params.year, params.page, params.endYear).items
-    }
+    override suspend fun getFilmsByKeywordRemote(keyword: String): List<FilmDTO> = Common.retrofitService.getFilmsByKeyword(keyword).items
 
-    override suspend fun getFilmsByKeywordRemote(keyword: String): List<FilmDTO> {
-        return Common.retrofitService.getFilmsByKeyword(keyword).items
-    }
+    override suspend fun getFilmByIdRemote(kinopoiskId: Int): FilmDetailDTO = Common.retrofitService.getFilmById(kinopoiskId)
 
-    override suspend fun getFilmByIdRemote(kinopoiskId: Int): FilmDetailDTO {
-        return Common.retrofitService.getFilmById(kinopoiskId)
-    }
-
-    override suspend fun getFilmFramesRemote(kinopoiskId: Int): List<FrameDTO> {
-        return Common.retrofitService.getFilmFrames(kinopoiskId).items
-    }
+    override suspend fun getFilmFramesRemote(kinopoiskId: Int): List<FrameDTO> = Common.retrofitService.getFilmFrames(kinopoiskId).items
 }

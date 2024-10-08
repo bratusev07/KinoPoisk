@@ -13,29 +13,43 @@ import ru.bratusev.domain.model.UserData
 import ru.bratusev.domain.usecase.LoginUseCase
 import ru.bratusev.kinopoisk.common.SingleLiveEvent
 
-class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
-
+class LoginViewModel(
+    private val loginUseCase: LoginUseCase,
+) : ViewModel() {
     private val _uiLabels = SingleLiveEvent<LoginLabel>()
     val uiLabels: LiveData<LoginLabel> get() = _uiLabels
 
-    private fun login(login: String, password: String) {
-        loginUseCase.invoke(UserData(login, password)).onEach { result ->
-            handleLoginResult(result)
-        }.launchIn(viewModelScope)
+    private fun login(
+        login: String,
+        password: String,
+    ) {
+        loginUseCase
+            .invoke(UserData(login, password))
+            .onEach { result ->
+                handleLoginResult(result)
+            }.launchIn(viewModelScope)
     }
 
     private fun handleLoginResult(result: Resource<Boolean>) {
         when (result) {
-            is Resource.Success -> _uiLabels.value =
-                if(result.data == true) LoginLabel.GoToNext
-                else LoginLabel.ShowPasswordAlert("Неверный пароль. Пожалуйста, попробуйте снова.")
+            is Resource.Success ->
+                _uiLabels.value =
+                    if (result.data == true) {
+                        LoginLabel.GoToNext
+                    } else {
+                        LoginLabel.ShowPasswordAlert("Неверный пароль. Пожалуйста, попробуйте снова.")
+                    }
             is Resource.Error -> logError(result.message)
             is Resource.Loading -> logLoading()
         }
     }
 
-    fun showDialog(builder: AlertDialog.Builder, message: String) {
-        builder.setTitle("Ошибка")
+    fun showDialog(
+        builder: AlertDialog.Builder,
+        message: String,
+    ) {
+        builder
+            .setTitle("Ошибка")
             .setMessage(message)
             .setPositiveButton("OK") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
             .create()
@@ -50,14 +64,20 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         Log.d("LoginViewModel", "Resource.Loading")
     }
 
-    internal fun handleEvent(event: LoginEvent){
-        when(event){
+    internal fun handleEvent(event: LoginEvent) {
+        when (event) {
             is LoginEvent.OnClickLogin -> handleLoginEvent(event.login, event.password)
         }
     }
 
-    private fun handleLoginEvent(login: String, password: String) {
-        if (login.isEmpty() || password.isEmpty()) _uiLabels.value = LoginLabel.ShowPasswordAlert("Логин или пароль не были введены.")
-        else login(login, password)
+    private fun handleLoginEvent(
+        login: String,
+        password: String,
+    ) {
+        if (login.isEmpty() || password.isEmpty()) {
+            _uiLabels.value = LoginLabel.ShowPasswordAlert("Логин или пароль не были введены.")
+        } else {
+            login(login, password)
+        }
     }
 }

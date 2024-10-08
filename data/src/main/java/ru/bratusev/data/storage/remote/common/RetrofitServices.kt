@@ -8,7 +8,6 @@ import ru.bratusev.data.model.FilmDetailDTO
 import ru.bratusev.data.model.FrameData
 
 interface RetrofitServices {
-
     @GET("films")
     suspend fun getFilms(
         @Query("order") order: String,
@@ -18,12 +17,17 @@ interface RetrofitServices {
     ): FilmData
 
     @GET("films/search-by-keyword")
-    suspend fun getFilmsByKeyword(@Query("keyword") keyword: String): FilmData
+    suspend fun getFilmsByKeyword(
+        @Query("keyword") keyword: String,
+    ): FilmData
 
     @GET("films/{filmId}")
-    suspend fun getFilmById(@Path("filmId") filmId: Int): FilmDetailDTO
+    suspend fun getFilmById(
+        @Path("filmId") filmId: Int,
+    ): FilmDetailDTO
 
     @GET("films/{filmId}/images")
-    suspend fun getFilmFrames(@Path("filmId") filmId: Int): FrameData
-
+    suspend fun getFilmFrames(
+        @Path("filmId") filmId: Int,
+    ): FrameData
 }

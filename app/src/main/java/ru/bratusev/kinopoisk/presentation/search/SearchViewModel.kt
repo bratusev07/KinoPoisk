@@ -15,15 +15,12 @@ import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
 import ru.bratusev.kinopoisk.common.SingleLiveEvent
-import ru.bratusev.kinopoisk.presentation.details.DetailEvent
-import ru.bratusev.kinopoisk.presentation.details.DetailLabel
 import ru.bratusev.kinopoisk.presentation.mapper.SearchScreenMapper
 
 class SearchViewModel(
     private val getFilmsUseCase: GetFilmsUseCase,
-    private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase
+    private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(SearchScreenState())
     val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
 
@@ -32,18 +29,25 @@ class SearchViewModel(
 
     private fun getFilmsRemote() {
         val params = uiState.value.params
-        getFilmsUseCase.invoke(params).onEach { result ->
-            handleFilmResult(result, params.needUpdate)
-        }.launchIn(viewModelScope)
+        getFilmsUseCase
+            .invoke(params)
+            .onEach { result ->
+                handleFilmResult(result, params.needUpdate)
+            }.launchIn(viewModelScope)
     }
 
     private fun searchFilms(keyword: String) {
-        getFilmByKeywordUseCase.invoke(keyword).onEach { result ->
-            handleSearchResult(result)
-        }.launchIn(viewModelScope)
+        getFilmByKeywordUseCase
+            .invoke(keyword)
+            .onEach { result ->
+                handleSearchResult(result)
+            }.launchIn(viewModelScope)
     }
 
-    private fun handleFilmResult(result: Resource<List<Film>>, needUpdate: Boolean) {
+    private fun handleFilmResult(
+        result: Resource<List<Film>>,
+        needUpdate: Boolean,
+    ) {
         when (result) {
             is Resource.Success -> {
                 updateFilmList(result.data.orEmpty(), needUpdate)
@@ -66,7 +70,7 @@ class SearchViewModel(
                     currentState.copy(
                         filmList = (SearchScreenMapper().transform(result.data.orEmpty())),
                         isLoading = false,
-                        isRefreshing = false
+                        isRefreshing = false,
                     )
                 }
             }
@@ -81,10 +85,17 @@ class SearchViewModel(
         }
     }
 
-    private fun updateFilmList(newFilms: List<Film>, needUpdate: Boolean) {
+    private fun updateFilmList(
+        newFilms: List<Film>,
+        needUpdate: Boolean,
+    ) {
         val newPage = SearchScreenMapper().transform(newFilms)
-        val items = if (needUpdate) newPage
-        else _uiState.value.filmList.plus(newPage)
+        val items =
+            if (needUpdate) {
+                newPage
+            } else {
+                _uiState.value.filmList.plus(newPage)
+            }
         _uiState.update { currentState ->
             currentState.copy(
                 filmList = items,
@@ -112,11 +123,17 @@ class SearchViewModel(
         getFilmsRemote()
     }
 
-    private fun getFilmsByYear(selectedYear: String, isStart: Boolean) {
+    private fun getFilmsByYear(
+        selectedYear: String,
+        isStart: Boolean,
+    ) {
         with(uiState.value.params) {
             page = 1
-            if (isStart) year = selectedYear
-            else endYear = selectedYear
+            if (isStart) {
+                year = selectedYear
+            } else {
+                endYear = selectedYear
+            }
             needUpdate = true
         }
         getFilmsRemote()
@@ -137,7 +154,7 @@ class SearchViewModel(
     }
 
     internal fun handleEvent(event: SearchEvent) {
-        when(event){
+        when (event) {
             is SearchEvent.OnClickBack -> _uiLabels.value = SearchLabel.GoToPrevious
             is SearchEvent.OnClickFilmItem -> _uiLabels.value = SearchLabel.GoToNext(event.bundle)
             is SearchEvent.OnClickYearPicker -> _uiLabels.value = SearchLabel.ShowDatePicker(event.isStart)
@@ -151,7 +168,10 @@ class SearchViewModel(
     }
 
     private fun handelOnScrollDown(inputSearch: String) {
-        if (inputSearch.isEmpty()) getNextPage()
-        else _uiLabels.value = SearchLabel.ShowToast("Это все ответы найденые локально и удовлетворяющие вашему запросу")
+        if (inputSearch.isEmpty()) {
+            getNextPage()
+        } else {
+            _uiLabels.value = SearchLabel.ShowToast("Это все ответы найденые локально и удовлетворяющие вашему запросу")
+        }
     }
 }

@@ -5,7 +5,9 @@ import android.text.Editable
 import com.google.android.material.internal.TextWatcherAdapter
 
 @SuppressLint("RestrictedApi")
-class DistinctTextWatcher(private val action: (String) -> Unit) : TextWatcherAdapter() {
+class DistinctTextWatcher(
+    private val action: (String) -> Unit,
+) : TextWatcherAdapter() {
     private var lastValue: String? = null
 
     override fun afterTextChanged(s: Editable) {
