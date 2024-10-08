@@ -6,7 +6,6 @@ import ru.bratusev.domain.model.FilmRequestParams
 import ru.bratusev.domain.model.Frame
 
 interface FilmRepository {
-
     suspend fun getFilms(params: FilmRequestParams): List<Film>
 
     suspend fun getFilmById(kinopoiskId: Int): FilmDetail

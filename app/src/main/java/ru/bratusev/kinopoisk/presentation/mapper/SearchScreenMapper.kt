@@ -6,7 +6,6 @@ import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 import ru.bratusev.kinopoisk.presentation.items.YearItemUI
 
 class SearchScreenMapper : Mapper<List<Film>, List<BaseItem>> {
-
     override fun transform(data: List<Film>): List<BaseItem> {
         val seenYears = mutableSetOf<Int>()
         return buildList {
@@ -21,17 +20,17 @@ class SearchScreenMapper : Mapper<List<Film>, List<BaseItem>> {
         }
     }
 
-    private fun mapToFilmUI(film: Film): FilmItemUI = FilmItemUI(
-        film.kinopoiskId.toString(),
-        film.name,
-        "${film.year}, ${film.country}",
-        film.genre,
-        film.ratingKinopoisk,
-        film.posterUrl,
-        film.posterUrlPreview,
-        film.frameList
-    )
+    private fun mapToFilmUI(film: Film): FilmItemUI =
+        FilmItemUI(
+            film.kinopoiskId.toString(),
+            film.name,
+            "${film.year}, ${film.country}",
+            film.genre,
+            film.ratingKinopoisk,
+            film.posterUrl,
+            film.posterUrlPreview,
+            film.frameList,
+        )
 
     private fun mapToYearUI(year: String): YearItemUI = YearItemUI(year, year)
-
 }

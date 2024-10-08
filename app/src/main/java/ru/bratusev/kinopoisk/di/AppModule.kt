@@ -1,28 +1,33 @@
 package ru.bratusev.kinopoisk.di
 
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.dsl.module
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import ru.bratusev.domain.usecase.GetFilmByIdUseCase
+import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
+import ru.bratusev.domain.usecase.GetFilmsUseCase
+import ru.bratusev.domain.usecase.GetFramesUseCase
+import ru.bratusev.domain.usecase.LoginUseCase
 import ru.bratusev.kinopoisk.presentation.details.DetailViewModel
 import ru.bratusev.kinopoisk.presentation.login.LoginViewModel
 import ru.bratusev.kinopoisk.presentation.search.SearchViewModel
 
-val appModule = module {
+@Module
+@InstallIn(ViewModelComponent::class)
+object AppModule {
+    @Provides
+    fun provideLoginViewModel(loginUseCase: LoginUseCase): LoginViewModel = LoginViewModel(loginUseCase)
 
-    viewModel<LoginViewModel> {
-        LoginViewModel(loginUseCase = get())
-    }
+    @Provides
+    fun provideSearchViewModel(
+        getFilmsUseCase: GetFilmsUseCase,
+        getFilmByKeywordUseCase: GetFilmByKeywordUseCase,
+    ): SearchViewModel = SearchViewModel(getFilmsUseCase, getFilmByKeywordUseCase)
 
-    viewModel<SearchViewModel> {
-        SearchViewModel(
-            getFilmsUseCase = get(),
-            getFilmByKeywordUseCase = get()
-        )
-    }
-
-    viewModel<DetailViewModel> {
-        DetailViewModel(
-            getFilmByIdUseCase = get(),
-            getFramesUseCase = get()
-        )
-    }
+    @Provides
+    fun provideDetailViewModel(
+        getFilmByIdUseCase: GetFilmByIdUseCase,
+        getFramesUseCase: GetFramesUseCase,
+    ): DetailViewModel = DetailViewModel(getFilmByIdUseCase, getFramesUseCase)
 }

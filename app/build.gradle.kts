@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -22,7 +24,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -36,6 +38,10 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+
+    kapt {
+        correctErrorTypes = true
     }
 }
 
@@ -57,9 +63,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Koin
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
+    // Room
     implementation(libs.androidx.room.ktx)
 
     // Adapter delegate
@@ -68,6 +72,10 @@ dependencies {
     // ViewBindingPropertyDelegate
     implementation(libs.viewbindingpropertydelegate.full)
     implementation(libs.viewbindingpropertydelegate.noreflection)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,18 +17,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentDetailBinding
 
+@AndroidEntryPoint
 class DetailFragment : Fragment(R.layout.fragment_detail) {
-
-    private val vm: DetailViewModel by viewModel()
+    private val vm by viewModels<DetailViewModel>()
     private val viewBinding: FragmentDetailBinding by viewBinding()
     private val frameAdapter = FrameScreenAdapter()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         setObservers()
         configureViews()
@@ -41,15 +45,16 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
 
     private fun setObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-            vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            vm.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
                 .collect {
                     frameAdapter.items = it.frameList
                     viewBinding.textDescription.text = it.filmDetail.description
                     it.webUrl = it.filmDetail.webUrl
                 }
         }
-        vm.uiLabels.observe(viewLifecycleOwner){
-            when(it){
+        vm.uiLabels.observe(viewLifecycleOwner) {
+            when (it) {
                 is DetailLabel.OpenUrl -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.webUrl)))
                 is DetailLabel.GoToPrevious -> navigateToSearchFragment()
             }
@@ -65,7 +70,8 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     }
 
     private fun setupBannerImage() {
-        Glide.with(viewBinding.imageBanner)
+        Glide
+            .with(viewBinding.imageBanner)
             .load(arguments?.getString("banner"))
             .error(R.drawable.ic_placeholder)
             .placeholder(R.drawable.ic_placeholder)
@@ -73,7 +79,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     }
 
     private fun setupTextViews() {
-        with(viewBinding){
+        with(viewBinding) {
             textRating.text = arguments?.getString("rating") ?: "Нет данных"
             textName.text = arguments?.getString("name") ?: "Нет данных"
             textGenre.text = arguments?.getString("genre") ?: "Нет данных"
@@ -97,11 +103,14 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     }
 
     private fun setupBackPressHandler() {
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                vm.handleEvent(DetailEvent.OnClickBack)
-            }
-        })
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    vm.handleEvent(DetailEvent.OnClickBack)
+                }
+            },
+        )
     }
 
     private fun navigateToSearchFragment() {

@@ -12,43 +12,36 @@ data class FilmDTO(
     val ratingKinopoisk: Float?,
     val year: Int?,
     val posterUrl: String?,
-    val posterUrlPreview: String?
+    val posterUrlPreview: String?,
 ) {
+    fun getGenres(): String = genres?.joinToString(", ") ?: "нет данных"
 
-    fun getGenres(): String {
-        return genres?.joinToString(", ") ?: "нет данных"
-    }
+    fun getCountries(): String = countries?.joinToString(", ") ?: "нет данных"
 
-    fun getCountries(): String {
-        return countries?.joinToString(", ") ?: "нет данных"
-    }
-
-    fun getName(): String {
-        return if (!nameOriginal.isNullOrEmpty()) {
+    fun getName(): String =
+        if (!nameOriginal.isNullOrEmpty()) {
             nameOriginal
         } else if (!nameEn.isNullOrEmpty()) {
             nameEn
         } else {
             nameRu ?: "нет данных"
         }
-    }
-
 }
 
-data class Genre(internal val genre: String) {
-    override fun toString(): String {
-        return genre
-    }
+data class Genre(
+    internal val genre: String,
+) {
+    override fun toString(): String = genre
 }
 
-data class Country(internal val country: String) {
-    override fun toString(): String {
-        return country
-    }
+data class Country(
+    internal val country: String,
+) {
+    override fun toString(): String = country
 }
 
-fun FilmDTO.toFilm(): Film {
-    return Film(
+fun FilmDTO.toFilm(): Film =
+    Film(
         kinopoiskId = kinopoiskId ?: 0,
         name = getName(),
         country = getCountries(),
@@ -57,6 +50,5 @@ fun FilmDTO.toFilm(): Film {
         year = year ?: 0,
         posterUrl = posterUrl ?: "нет данных",
         posterUrlPreview = posterUrlPreview ?: "нет данных",
-        frameList = listOf()
+        frameList = listOf(),
     )
-}

@@ -3,15 +3,15 @@ package ru.bratusev.data.storage.local
 import android.content.Context
 import ru.bratusev.data.model.UserDTO
 
-
 private const val SHARED_PREFS_NAME = "shared_prefs_name"
 private const val KEY_LOGIN = "login"
 private const val KEY_PASSWORD = "password"
 private const val DEFAULT_LOGIN = ""
 private const val DEFAULT_PASSWORD = ""
 
-class UserStorageImpl(context: Context) : UserStorage {
-
+class UserStorageImpl(
+    context: Context,
+) : UserStorage {
     private val sharedPreferences =
         context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
 

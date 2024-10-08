@@ -1,31 +1,38 @@
 package ru.bratusev.kinopoisk.di
 
-import org.koin.dsl.module
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import ru.bratusev.domain.repository.FilmRepository
+import ru.bratusev.domain.repository.UserRepository
 import ru.bratusev.domain.usecase.GetFilmByIdUseCase
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
 import ru.bratusev.domain.usecase.LoginUseCase
+import javax.inject.Singleton
 
-val domainModule = module {
+@Module
+@InstallIn(SingletonComponent::class)
+object DomainModule {
+    @Provides
+    @Singleton
+    fun provideGetFilmsUseCase(filmRepository: FilmRepository): GetFilmsUseCase = GetFilmsUseCase(filmRepository)
 
-    factory<GetFilmsUseCase> {
-        GetFilmsUseCase(filmRepository = get())
-    }
+    @Provides
+    @Singleton
+    fun provideGetFilmByIdUseCase(filmRepository: FilmRepository): GetFilmByIdUseCase = GetFilmByIdUseCase(filmRepository)
 
-    factory<GetFilmByIdUseCase> {
-        GetFilmByIdUseCase(filmRepository = get())
-    }
+    @Provides
+    @Singleton
+    fun provideLoginUseCase(userRepository: UserRepository): LoginUseCase = LoginUseCase(userRepository)
 
-    factory<LoginUseCase> {
-        LoginUseCase(userRepository = get())
-    }
+    @Provides
+    @Singleton
+    fun provideGetFramesUseCase(filmRepository: FilmRepository): GetFramesUseCase = GetFramesUseCase(filmRepository)
 
-    factory<GetFramesUseCase> {
-        GetFramesUseCase(filmRepository = get())
-    }
-
-    factory<GetFilmByKeywordUseCase> {
-        GetFilmByKeywordUseCase(filmRepository = get())
-    }
+    @Provides
+    @Singleton
+    fun provideGetFilmByKeywordUseCase(filmRepository: FilmRepository): GetFilmByKeywordUseCase = GetFilmByKeywordUseCase(filmRepository)
 }
