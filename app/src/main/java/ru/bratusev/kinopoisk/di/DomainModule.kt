@@ -7,25 +7,26 @@ import ru.bratusev.domain.usecase.GetFilmsUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
 import ru.bratusev.domain.usecase.LoginUseCase
 
-val domainModule = module {
+val domainModule =
+    module {
 
-    factory<GetFilmsUseCase> {
-        GetFilmsUseCase(filmRepository = get())
-    }
+        factory<GetFilmsUseCase> {
+            GetFilmsUseCase(filmRepository = get())
+        }
 
-    factory<GetFilmByIdUseCase> {
-        GetFilmByIdUseCase(filmRepository = get())
-    }
+        factory<GetFilmByIdUseCase> {
+            GetFilmByIdUseCase(filmRepository = get())
+        }
 
-    factory<LoginUseCase> {
-        LoginUseCase(userRepository = get())
-    }
+        factory<LoginUseCase> {
+            LoginUseCase(userRepository = get())
+        }
 
-    factory<GetFramesUseCase> {
-        GetFramesUseCase(filmRepository = get())
-    }
+        factory<GetFramesUseCase> {
+            GetFramesUseCase(filmRepository = get())
+        }
 
-    factory<GetFilmByKeywordUseCase> {
-        GetFilmByKeywordUseCase(filmRepository = get())
+        factory<GetFilmByKeywordUseCase> {
+            GetFilmByKeywordUseCase(filmRepository = get())
+        }
     }
-}

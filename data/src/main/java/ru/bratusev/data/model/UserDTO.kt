@@ -4,9 +4,7 @@ import ru.bratusev.domain.model.UserData
 
 data class UserDTO(
     internal val login: String?,
-    internal val password: String?
+    internal val password: String?,
 )
 
-fun UserDTO.toUserData(): UserData {
-    return UserData(login = login ?: "", password = password ?: "")
-}
+fun UserDTO.toUserData(): UserData = UserData(login = login ?: "", password = password ?: "")

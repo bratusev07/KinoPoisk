@@ -2,14 +2,11 @@ package ru.bratusev.kinopoisk.presentation.search
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -27,15 +24,18 @@ import ru.bratusev.kinopoisk.databinding.FragmentSearchBinding
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
 class SearchFragment : Fragment(R.layout.fragment_search) {
-
     private val vm: SearchViewModel by viewModel()
     private val viewBinding: FragmentSearchBinding by viewBinding()
 
-    private val filmAdapter = FilmAdapter { film ->
-        onItemClick(film)
-    }
+    private val filmAdapter =
+        FilmAdapter { film ->
+            onItemClick(film)
+        }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         configureViews()
         setObservers()
@@ -84,11 +84,12 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
 
     private fun showYearPickerDialog(isStart: Boolean = true) {
-        val dataPicker = DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
-            vm.handleEvent(SearchEvent.OnYearSelected(selectedYear.toString(), isStart))
-        }, 2024, 1, 1).apply {
-            datePicker.maxDate = System.currentTimeMillis()
-        }
+        val dataPicker =
+            DatePickerDialog(requireContext(), { _, selectedYear, _, _ ->
+                vm.handleEvent(SearchEvent.OnYearSelected(selectedYear.toString(), isStart))
+            }, 2024, 1, 1).apply {
+                datePicker.maxDate = System.currentTimeMillis()
+            }
         dataPicker.show()
     }
 
@@ -113,19 +114,24 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 override fun handleOnBackPressed() {
                     vm.handleEvent(SearchEvent.OnClickBack)
                 }
-            }
+            },
         )
     }
 
-    private val onScroll = object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-            if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
-                vm.handleEvent(SearchEvent.OnScrollDown(viewBinding.inputSearch.text.toString()))
+    private val onScroll =
+        object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int,
+                dy: Int,
+            ) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1) {
+                    vm.handleEvent(SearchEvent.OnScrollDown(viewBinding.inputSearch.text.toString()))
+                }
             }
         }
-    }
 
     private fun setObservers() {
         vm.uiLabels.observe(viewLifecycleOwner) {
@@ -137,7 +143,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            vm.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            vm.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
                 .collect {
                     filmAdapter.items = it.filmList
                     with(viewBinding) {
@@ -171,14 +178,18 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
 
     private fun onItemClick(film: FilmItemUI) {
-        vm.handleEvent(SearchEvent.OnClickFilmItem(Bundle().apply {
-            putString("banner", film.posterUrl)
-            putString("rating", film.ratingKinopoisk.toString())
-            putString("name", film.name)
-            putInt("kinopoiskId", film.itemId.toInt())
-            putString("genre", film.genre)
-            putString("date", film.date)
-        }))
+        vm.handleEvent(
+            SearchEvent.OnClickFilmItem(
+                Bundle().apply {
+                    putString("banner", film.posterUrl)
+                    putString("rating", film.ratingKinopoisk.toString())
+                    putString("name", film.name)
+                    putInt("kinopoiskId", film.itemId.toInt())
+                    putString("genre", film.genre)
+                    putString("date", film.date)
+                },
+            ),
+        )
     }
 
     private fun EditText.doOnTextUpdated(action: (String) -> Unit) {

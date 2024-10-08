@@ -15,7 +15,7 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         kapt {
-            arguments {arg("room.schemaLocation", "$projectDir/schemas")}
+            arguments { arg("room.schemaLocation", "$projectDir/schemas") }
         }
     }
 
@@ -24,7 +24,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -40,12 +40,12 @@ android {
 dependencies {
     implementation(project(":domain"))
 
-    //Room
-    implementation (libs.androidx.room.runtime)
-    kapt (libs.androidx.room.compiler)
-    implementation (libs.androidx.room.ktx)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
-    //Retrofit
+    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 

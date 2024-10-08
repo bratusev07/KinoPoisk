@@ -9,11 +9,10 @@ data class FilmDetailDTO(
     val endYear: String?,
 )
 
-fun FilmDetailDTO.toFilmDetail(): FilmDetail {
-    return FilmDetail(
+fun FilmDetailDTO.toFilmDetail(): FilmDetail =
+    FilmDetail(
         description = description ?: "нет данных",
         webUrl = webUrl ?: "нет данных",
         startYear = startYear ?: "нет данных",
-        endYear = endYear ?: "нет данных"
+        endYear = endYear ?: "нет данных",
     )
-}

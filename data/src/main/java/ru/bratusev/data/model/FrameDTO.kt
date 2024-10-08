@@ -4,12 +4,11 @@ import ru.bratusev.domain.model.Frame
 
 data class FrameDTO(
     internal val imageUrl: String?,
-    internal val previewUrl: String?
+    internal val previewUrl: String?,
 )
 
-fun FrameDTO.toFrame(): Frame {
-    return Frame(
+fun FrameDTO.toFrame(): Frame =
+    Frame(
         imageUrl = imageUrl ?: "нет данных",
-        previewUrl = previewUrl ?: "нет данных"
+        previewUrl = previewUrl ?: "нет данных",
     )
-}

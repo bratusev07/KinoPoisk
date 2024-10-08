@@ -18,26 +18,33 @@ object Common {
 
         fun getClient(baseUrl: String): Retrofit {
             if (retrofit == null) {
-                retrofit = Retrofit.Builder()
-                    .baseUrl(baseUrl)
-                    .client(getOkHttpClient())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
+                retrofit =
+                    Retrofit
+                        .Builder()
+                        .baseUrl(baseUrl)
+                        .client(getOkHttpClient())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
             }
             return retrofit!!
         }
 
-        private fun getOkHttpClient() = OkHttpClient.Builder()
-            .addInterceptor(getInterceptor())
-            .build()
-
-        private fun getInterceptor() = Interceptor { chain ->
-            val original = chain.request()
-            val request = original.newBuilder()
-                .header("X-API-KEY", KEY)
-                .method(original.method(), original.body())
+        private fun getOkHttpClient() =
+            OkHttpClient
+                .Builder()
+                .addInterceptor(getInterceptor())
                 .build()
-            chain.proceed(request)
-        }
+
+        private fun getInterceptor() =
+            Interceptor { chain ->
+                val original = chain.request()
+                val request =
+                    original
+                        .newBuilder()
+                        .header("X-API-KEY", KEY)
+                        .method(original.method(), original.body())
+                        .build()
+                chain.proceed(request)
+            }
     }
 }

@@ -12,19 +12,21 @@ import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
-
     private val vm: LoginViewModel by viewModel<LoginViewModel>()
     private val viewBinding: FragmentLoginBinding by viewBinding()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         configureViews()
         setObservers()
     }
 
     private fun setObservers() {
-        vm.uiLabels.observe(viewLifecycleOwner){
-            when(it){
+        vm.uiLabels.observe(viewLifecycleOwner) {
+            when (it) {
                 is LoginLabel.GoToNext -> navigateToSearchFragment()
                 is LoginLabel.ShowPasswordAlert -> showAlert(it.message)
             }
