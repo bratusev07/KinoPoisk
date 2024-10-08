@@ -1,6 +1,7 @@
 package ru.bratusev.kinopoisk.presentation.details
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,8 @@ import ru.bratusev.domain.model.FilmDetail
 import ru.bratusev.domain.model.Frame
 import ru.bratusev.domain.usecase.GetFilmByIdUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
+import ru.bratusev.kinopoisk.common.SingleLiveEvent
+import ru.bratusev.kinopoisk.presentation.login.LoginEvent
 import ru.bratusev.kinopoisk.presentation.mapper.DetailScreenMapper
 
 class DetailViewModel(
@@ -24,7 +27,10 @@ class DetailViewModel(
     private val _uiState = MutableStateFlow(DetailScreenState())
     val uiState: StateFlow<DetailScreenState> = _uiState.asStateFlow()
 
-    internal fun getFilmByIdRemote(kinopoiskId: Int) {
+    private val _uiLabels = SingleLiveEvent<DetailLabel>()
+    val uiLabels: LiveData<DetailLabel> get() = _uiLabels
+
+    private fun getFilmByIdRemote(kinopoiskId: Int) {
         getFilmByIdUseCase.invoke(kinopoiskId).onEach { result ->
             handleFilmResult(result)
         }.launchIn(viewModelScope)
@@ -42,7 +48,7 @@ class DetailViewModel(
         }
     }
 
-    internal fun getFramesRemote(kinopoiskId: Int) {
+    private fun getFramesRemote(kinopoiskId: Int) {
         getFramesUseCase.invoke(kinopoiskId).onEach { result ->
             handleFramesResult(result)
         }.launchIn(viewModelScope)
@@ -66,8 +72,16 @@ class DetailViewModel(
         Log.d("DetailViewModel", "Resource.Loading")
     }
 
-    internal fun loadFilmData(kinopoiskId: Int) {
+    private fun loadFilmData(kinopoiskId: Int) {
         getFilmByIdRemote(kinopoiskId)
         getFramesRemote(kinopoiskId)
+    }
+
+    internal fun handleEvent(event: DetailEvent) {
+        when(event){
+            is DetailEvent.OnClickWebUrl -> _uiLabels.value = DetailLabel.OpenUrl(event.webUrl)
+            is DetailEvent.OnClickBack -> _uiLabels.value = DetailLabel.GoToPrevious
+            is DetailEvent.OnFragmentStart -> loadFilmData(event.kinopoiskId)
+        }
     }
 }
