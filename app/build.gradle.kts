@@ -65,6 +65,10 @@ dependencies {
     // Adapter delegate
     implementation(libs.adapterdelegates4.kotlin.dsl.viewbinding)
 
+    // ViewBindingPropertyDelegate
+    implementation(libs.viewbindingpropertydelegate.full)
+    implementation(libs.viewbindingpropertydelegate.noreflection)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

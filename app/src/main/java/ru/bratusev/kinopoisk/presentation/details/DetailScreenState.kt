@@ -5,5 +5,6 @@ import ru.bratusev.kinopoisk.presentation.items.BaseItem
 
 data class DetailScreenState(
     val filmDetail: FilmDetail = FilmDetail("", "", "", ""),
-    val frameList: List<BaseItem> = ArrayList()
+    val frameList: List<BaseItem> = listOf(),
+    var webUrl: String = ""
 )
