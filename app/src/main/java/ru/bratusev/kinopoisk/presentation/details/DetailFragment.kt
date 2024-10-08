@@ -36,7 +36,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     }
 
     private fun loadFilmData() {
-        vm.loadFilmData(arguments?.getInt("kinopoiskId") ?: 0)
+        vm.handleEvent(DetailEvent.OnFragmentStart(arguments?.getInt("kinopoiskId") ?: 0))
     }
 
     private fun setObservers() {
@@ -47,6 +47,12 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
                     viewBinding.textDescription.text = it.filmDetail.description
                     it.webUrl = it.filmDetail.webUrl
                 }
+        }
+        vm.uiLabels.observe(viewLifecycleOwner){
+            when(it){
+                is DetailLabel.OpenUrl -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.webUrl)))
+                is DetailLabel.GoToPrevious -> navigateToSearchFragment()
+            }
         }
     }
 
@@ -85,7 +91,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     private fun setupLinkClickListener() {
         viewBinding.imageLink.setOnClickListener {
             vm.uiState.value.webUrl.let {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                vm.handleEvent(DetailEvent.OnClickWebUrl(it))
             }
         }
     }
@@ -93,7 +99,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     private fun setupBackPressHandler() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                navigateToSearchFragment()
+                vm.handleEvent(DetailEvent.OnClickBack)
             }
         })
     }
