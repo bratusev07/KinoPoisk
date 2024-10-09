@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentDetailBinding
+import ru.bratusev.kinopoisk.presentation.items.FilmArgs
 
 @AndroidEntryPoint
 class DetailFragment : Fragment(R.layout.fragment_detail) {
@@ -36,12 +37,14 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         super.onViewCreated(view, savedInstanceState)
         setObservers()
         configureViews()
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         loadFilmData()
+        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
     }
 
     private fun loadFilmData() {
-        vm.handleEvent(DetailEvent.OnFragmentStart(arguments?.getInt("kinopoiskId") ?: 0))
+        vm.handleEvent(
+            DetailEvent.OnFragmentStart,
+        )
     }
 
     private fun setObservers() {
@@ -52,6 +55,8 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
                     frameAdapter.items = it.frameList
                     viewBinding.textDescription.text = it.filmDetail.description
                     it.webUrl = it.filmDetail.webUrl
+                    setupTextViews(it.film)
+                    setupBannerImage(it.film.posterUrlPreview)
                 }
         }
         vm.uiLabels.observe(viewLifecycleOwner) {
@@ -63,28 +68,26 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
     }
 
     private fun configureViews() {
-        setupBannerImage()
-        setupTextViews()
         setupRecyclerView()
         setupLinkClickListener()
         setupBackPressHandler()
     }
 
-    private fun setupBannerImage() {
+    private fun setupBannerImage(imageUrl: String) {
         Glide
             .with(viewBinding.imageBanner)
-            .load(arguments?.getString("banner"))
+            .load(imageUrl)
             .error(R.drawable.ic_placeholder)
             .placeholder(R.drawable.ic_placeholder)
             .into(viewBinding.imageBanner)
     }
 
-    private fun setupTextViews() {
+    private fun setupTextViews(film: FilmArgs) {
         with(viewBinding) {
-            textRating.text = arguments?.getString("rating") ?: "Нет данных"
-            textName.text = arguments?.getString("name") ?: "Нет данных"
-            textGenre.text = arguments?.getString("genre") ?: "Нет данных"
-            textDate.text = arguments?.getString("date") ?: "Нет данных"
+            textRating.text = film.ratingKinopoisk.toString()
+            textName.text = film.name
+            textGenre.text = film.genre
+            textDate.text = film.country
         }
     }
 
