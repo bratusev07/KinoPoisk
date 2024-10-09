@@ -7,13 +7,17 @@ import ru.bratusev.data.model.FrameDTO
 import ru.bratusev.data.storage.remote.common.RetrofitServices
 import javax.inject.Inject
 
-class RemoteFilmStorageImpl @Inject constructor(private val retrofitServices: RetrofitServices) : RemoteFilmStorage {
-    override suspend fun getFilmsRemote(params: FilmRequestParams): List<FilmDTO> =
-        retrofitServices.getFilms(params.order, params.year, params.page, params.endYear).items
+class RemoteFilmStorageImpl
+    @Inject
+    constructor(
+        private val retrofitServices: RetrofitServices,
+    ) : RemoteFilmStorage {
+        override suspend fun getFilmsRemote(params: FilmRequestParams): List<FilmDTO> =
+            retrofitServices.getFilms(params.order, params.year, params.page, params.endYear).items
 
-    override suspend fun getFilmsByKeywordRemote(keyword: String): List<FilmDTO> = retrofitServices.getFilmsByKeyword(keyword).items
+        override suspend fun getFilmsByKeywordRemote(keyword: String): List<FilmDTO> = retrofitServices.getFilmsByKeyword(keyword).items
 
-    override suspend fun getFilmByIdRemote(kinopoiskId: Int): FilmDetailDTO = retrofitServices.getFilmById(kinopoiskId)
+        override suspend fun getFilmByIdRemote(kinopoiskId: Int): FilmDetailDTO = retrofitServices.getFilmById(kinopoiskId)
 
-    override suspend fun getFilmFramesRemote(kinopoiskId: Int): List<FrameDTO> = retrofitServices.getFilmFrames(kinopoiskId).items
-}
+        override suspend fun getFilmFramesRemote(kinopoiskId: Int): List<FrameDTO> = retrofitServices.getFilmFrames(kinopoiskId).items
+    }

@@ -2,6 +2,7 @@ package ru.bratusev.kinopoisk.presentation.details
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,14 +18,18 @@ import ru.bratusev.domain.model.Frame
 import ru.bratusev.domain.usecase.GetFilmByIdUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
 import ru.bratusev.kinopoisk.common.SingleLiveEvent
+import ru.bratusev.kinopoisk.presentation.items.FilmArgs
 import ru.bratusev.kinopoisk.presentation.mapper.DetailScreenMapper
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(
-    private val getFilmByIdUseCase: GetFilmByIdUseCase,
-    private val getFramesUseCase: GetFramesUseCase,
-) : ViewModel() {
+class DetailViewModel
+    @Inject
+    constructor(
+        private val savedStateHandle: SavedStateHandle,
+        private val getFilmByIdUseCase: GetFilmByIdUseCase,
+        private val getFramesUseCase: GetFramesUseCase,
+    ) : ViewModel() {
         private val _uiState = MutableStateFlow(DetailScreenState())
         val uiState: StateFlow<DetailScreenState> = _uiState.asStateFlow()
 
@@ -69,7 +74,6 @@ class DetailViewModel @Inject constructor(
                 is Resource.Error -> logError(result.message)
                 is Resource.Loading -> logLoading()
             }
-
         }
 
         private fun logError(message: String?) {
@@ -80,7 +84,9 @@ class DetailViewModel @Inject constructor(
             Log.d("DetailViewModel", "Resource.Loading")
         }
 
-        private fun loadFilmData(kinopoiskId: Int) {
+        private fun loadFilmData() {
+            _uiState.value.film = savedStateHandle["film"] ?: FilmArgs()
+            val kinopoiskId = _uiState.value.film.kinopoiskId
             getFilmByIdRemote(kinopoiskId)
             getFramesRemote(kinopoiskId)
         }
@@ -89,7 +95,7 @@ class DetailViewModel @Inject constructor(
             when (event) {
                 is DetailEvent.OnClickWebUrl -> _uiLabels.value = DetailLabel.OpenUrl(event.webUrl)
                 is DetailEvent.OnClickBack -> _uiLabels.value = DetailLabel.GoToPrevious
-                is DetailEvent.OnFragmentStart -> loadFilmData(event.kinopoiskId)
+                is DetailEvent.OnFragmentStart -> loadFilmData()
             }
         }
     }
