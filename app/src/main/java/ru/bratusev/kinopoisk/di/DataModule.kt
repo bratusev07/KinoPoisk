@@ -26,7 +26,8 @@ import javax.inject.Singleton
 object DataModule {
     @Provides
     @Singleton
-    fun provideRemoteFilmStorage(retrofitServices: RetrofitServices): RemoteFilmStorage = RemoteFilmStorageImpl(retrofitServices = retrofitServices)
+    fun provideRemoteFilmStorage(retrofitServices: RetrofitServices): RemoteFilmStorage =
+        RemoteFilmStorageImpl(retrofitServices = retrofitServices)
 
     @Provides
     @Singleton

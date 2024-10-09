@@ -4,7 +4,7 @@ import ru.bratusev.domain.model.FilmRequestParams
 import ru.bratusev.kinopoisk.presentation.items.BaseItem
 
 data class SearchScreenState(
-    val filmList: List<BaseItem> = ArrayList(),
+    val filmList: List<BaseItem> = emptyList(),
     val isLoading: Boolean = false,
     val params: FilmRequestParams = FilmRequestParams(),
     var rotationSortIcon: Float = 0f,
