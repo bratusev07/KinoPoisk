@@ -22,7 +22,7 @@ import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.DistinctTextWatcher
 import ru.bratusev.kinopoisk.common.NetworkUtils
 import ru.bratusev.kinopoisk.databinding.FragmentSearchBinding
-import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
+import ru.bratusev.kinopoisk.presentation.items.FilmArgs
 
 @AndroidEntryPoint
 class SearchFragment : Fragment(R.layout.fragment_search) {
@@ -140,7 +140,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         vm.uiLabels.observe(viewLifecycleOwner) {
             when (it) {
                 SearchLabel.GoToPrevious -> navigateToLoginFragment()
-                is SearchLabel.GoToNext -> navigateToDetailFragment(it.bundle)
+                is SearchLabel.GoToNext -> navigateToDetailFragment(it.film)
                 is SearchLabel.ShowDatePicker -> showYearPickerDialog(it.isStart)
                 is SearchLabel.ShowToast -> showToast(it.message)
             }
@@ -173,25 +173,16 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
     }
 
-    private fun navigateToDetailFragment(bundle: Bundle) {
+    private fun navigateToDetailFragment(film: FilmArgs) {
         try {
-            findNavController().navigate(R.id.action_searchFragment_to_detailFragment, bundle)
+            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToDetailFragment(film))
         } catch (_: RuntimeException) {
         }
     }
 
-    private fun onItemClick(film: FilmItemUI) {
+    private fun onItemClick(filmId: String) {
         vm.handleEvent(
-            SearchEvent.OnClickFilmItem(
-                Bundle().apply {
-                    putString("banner", film.posterUrl)
-                    putString("rating", film.ratingKinopoisk.toString())
-                    putString("name", film.name)
-                    putInt("kinopoiskId", film.itemId.toInt())
-                    putString("genre", film.genre)
-                    putString("date", film.date)
-                },
-            ),
+            SearchEvent.OnClickFilmItem(filmId),
         )
     }
 

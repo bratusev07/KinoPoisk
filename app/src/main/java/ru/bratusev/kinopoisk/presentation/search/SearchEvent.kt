@@ -1,10 +1,8 @@
 package ru.bratusev.kinopoisk.presentation.search
 
-import android.os.Bundle
-
 sealed class SearchEvent {
     data class OnClickFilmItem(
-        val bundle: Bundle,
+        val filmId: String,
     ) : SearchEvent()
 
     data object OnClickBack : SearchEvent()

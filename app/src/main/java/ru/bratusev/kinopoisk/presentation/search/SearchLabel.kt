@@ -1,12 +1,12 @@
 package ru.bratusev.kinopoisk.presentation.search
 
-import android.os.Bundle
+import ru.bratusev.kinopoisk.presentation.items.FilmArgs
 
 sealed class SearchLabel {
     data object GoToPrevious : SearchLabel()
 
     data class GoToNext(
-        val bundle: Bundle,
+        val film: FilmArgs,
     ) : SearchLabel()
 
     data class ShowDatePicker(

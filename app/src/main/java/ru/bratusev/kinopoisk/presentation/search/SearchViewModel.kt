@@ -16,14 +16,19 @@ import ru.bratusev.domain.model.Film
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
 import ru.bratusev.kinopoisk.common.SingleLiveEvent
+import ru.bratusev.kinopoisk.presentation.items.FilmArgs
+import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
+import ru.bratusev.kinopoisk.presentation.items.toFilmArgs
 import ru.bratusev.kinopoisk.presentation.mapper.SearchScreenMapper
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(
-    private val getFilmsUseCase: GetFilmsUseCase,
-    private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase
-) : ViewModel() {
+class SearchViewModel
+    @Inject
+    constructor(
+        private val getFilmsUseCase: GetFilmsUseCase,
+        private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase,
+    ) : ViewModel() {
         private val _uiState = MutableStateFlow(SearchScreenState())
         val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
 
@@ -55,7 +60,6 @@ class SearchViewModel @Inject constructor(
                 is Resource.Success -> {
                     updateFilmList(result.data.orEmpty(), needUpdate)
                 }
-
                 is Resource.Error -> logError(result.message)
                 is Resource.Loading -> {
                     _uiState.update { currentState ->
@@ -77,7 +81,6 @@ class SearchViewModel @Inject constructor(
                         )
                     }
                 }
-
                 is Resource.Error -> logError(result.message)
                 is Resource.Loading -> {
                     _uiState.update { currentState ->
@@ -159,7 +162,7 @@ class SearchViewModel @Inject constructor(
         internal fun handleEvent(event: SearchEvent) {
             when (event) {
                 is SearchEvent.OnClickBack -> _uiLabels.value = SearchLabel.GoToPrevious
-                is SearchEvent.OnClickFilmItem -> _uiLabels.value = SearchLabel.GoToNext(event.bundle)
+                is SearchEvent.OnClickFilmItem -> handleOnClickFilmItem(event.filmId)
                 is SearchEvent.OnClickYearPicker -> _uiLabels.value = SearchLabel.ShowDatePicker(event.isStart)
                 SearchEvent.OnRefresh -> refreshFilms()
                 is SearchEvent.OnScrollDown -> handelOnScrollDown(event.inputSearch)
@@ -177,4 +180,13 @@ class SearchViewModel @Inject constructor(
                 _uiLabels.value = SearchLabel.ShowToast("Это все ответы найденые локально и удовлетворяющие вашему запросу")
             }
         }
+
+        private fun handleOnClickFilmItem(filmId: String) {
+            val film = getFilmByItemId(filmId)
+            if (film != null) _uiLabels.value = SearchLabel.GoToNext(film)
+            else _uiLabels.value = SearchLabel.ShowToast("Что-то пошло не так, попробуйте позже")
+        }
+
+        private fun getFilmByItemId(itemId: String): FilmArgs? =
+            (uiState.value.filmList.find { it.itemId == itemId } as? FilmItemUI)?.toFilmArgs()
     }

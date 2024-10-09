@@ -7,7 +7,5 @@ sealed class DetailEvent {
 
     data object OnClickBack : DetailEvent()
 
-    data class OnFragmentStart(
-        val kinopoiskId: Int,
-    ) : DetailEvent()
+    data object OnFragmentStart : DetailEvent()
 }
