@@ -8,6 +8,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,13 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentDetailBinding
 
+@AndroidEntryPoint
 class DetailFragment : Fragment(R.layout.fragment_detail) {
-    private val vm: DetailViewModel by viewModel()
+    private val vm by viewModels<DetailViewModel>()
+
     private val viewBinding: FragmentDetailBinding by viewBinding()
     private val frameAdapter = FrameScreenAdapter()
 

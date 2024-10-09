@@ -1,18 +1,22 @@
 package ru.bratusev.kinopoisk.presentation.login
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentLoginBinding
 
+@AndroidEntryPoint
 class LoginFragment : Fragment(R.layout.fragment_login) {
-    private val vm: LoginViewModel by viewModel<LoginViewModel>()
+    private val vm by viewModels<LoginViewModel>()
+
     private val viewBinding: FragmentLoginBinding by viewBinding()
 
     override fun onViewCreated(
@@ -35,7 +39,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun configureViews() {
         viewBinding.buttonLogin.setOnClickListener {
-            vm.handleEvent(LoginEvent.OnClickLogin(viewBinding.inputLogin.text.toString(), viewBinding.inputPassword.text.toString()))
+            vm.handleEvent(
+                LoginEvent.OnClickLogin(
+                    viewBinding.inputLogin.text.toString(),
+                    viewBinding.inputPassword.text.toString(),
+                ),
+            )
         }
     }
 
@@ -48,6 +57,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun showAlert(message: String) {
-        vm.showDialog(AlertDialog.Builder(requireContext()), message)
+        AlertDialog
+            .Builder(requireContext())
+            .setTitle("Ошибка")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+            .create()
+            .show()
     }
 }

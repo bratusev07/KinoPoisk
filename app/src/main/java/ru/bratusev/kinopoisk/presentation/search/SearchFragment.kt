@@ -8,6 +8,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,16 +16,18 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.common.DistinctTextWatcher
 import ru.bratusev.kinopoisk.common.NetworkUtils
 import ru.bratusev.kinopoisk.databinding.FragmentSearchBinding
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
+@AndroidEntryPoint
 class SearchFragment : Fragment(R.layout.fragment_search) {
-    private val vm: SearchViewModel by viewModel()
+    private val vm by viewModels<SearchViewModel>()
+
     private val viewBinding: FragmentSearchBinding by viewBinding()
 
     private val filmAdapter =
