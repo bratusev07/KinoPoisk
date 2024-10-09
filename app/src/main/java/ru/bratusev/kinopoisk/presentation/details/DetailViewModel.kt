@@ -21,12 +21,10 @@ import ru.bratusev.kinopoisk.presentation.mapper.DetailScreenMapper
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewModel
-    @Inject
-    constructor(
-        private val getFilmByIdUseCase: GetFilmByIdUseCase,
-        private val getFramesUseCase: GetFramesUseCase,
-    ) : ViewModel() {
+class DetailViewModel @Inject constructor(
+    private val getFilmByIdUseCase: GetFilmByIdUseCase,
+    private val getFramesUseCase: GetFramesUseCase,
+) : ViewModel() {
         private val _uiState = MutableStateFlow(DetailScreenState())
         val uiState: StateFlow<DetailScreenState> = _uiState.asStateFlow()
 

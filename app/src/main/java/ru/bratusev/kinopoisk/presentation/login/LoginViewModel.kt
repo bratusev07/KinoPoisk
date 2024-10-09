@@ -14,11 +14,9 @@ import ru.bratusev.kinopoisk.common.SingleLiveEvent
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel
-    @Inject
-    constructor(
-        private val loginUseCase: LoginUseCase,
-    ) : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val loginUseCase: LoginUseCase
+) : ViewModel() {
         private val _uiLabels = SingleLiveEvent<LoginLabel>()
         val uiLabels: LiveData<LoginLabel> get() = _uiLabels
 

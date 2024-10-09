@@ -16,6 +16,7 @@ import ru.bratusev.data.storage.local.UserStorageImpl
 import ru.bratusev.data.storage.local.db.FilmDataBase
 import ru.bratusev.data.storage.remote.RemoteFilmStorage
 import ru.bratusev.data.storage.remote.RemoteFilmStorageImpl
+import ru.bratusev.data.storage.remote.common.RetrofitServices
 import ru.bratusev.domain.repository.FilmRepository
 import ru.bratusev.domain.repository.UserRepository
 import javax.inject.Singleton
@@ -25,7 +26,7 @@ import javax.inject.Singleton
 object DataModule {
     @Provides
     @Singleton
-    fun provideRemoteFilmStorage(): RemoteFilmStorage = RemoteFilmStorageImpl()
+    fun provideRemoteFilmStorage(retrofitServices: RetrofitServices): RemoteFilmStorage = RemoteFilmStorageImpl(retrofitServices = retrofitServices)
 
     @Provides
     @Singleton

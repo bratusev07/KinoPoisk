@@ -20,12 +20,10 @@ import ru.bratusev.kinopoisk.presentation.mapper.SearchScreenMapper
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel
-    @Inject
-    constructor(
-        private val getFilmsUseCase: GetFilmsUseCase,
-        private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase,
-    ) : ViewModel() {
+class SearchViewModel @Inject constructor(
+    private val getFilmsUseCase: GetFilmsUseCase,
+    private val getFilmByKeywordUseCase: GetFilmByKeywordUseCase
+) : ViewModel() {
         private val _uiState = MutableStateFlow(SearchScreenState())
         val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
 
