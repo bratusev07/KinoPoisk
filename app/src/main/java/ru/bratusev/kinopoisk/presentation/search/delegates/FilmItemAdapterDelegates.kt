@@ -7,11 +7,11 @@ import ru.bratusev.kinopoisk.databinding.ItemFilmBinding
 import ru.bratusev.kinopoisk.presentation.items.BaseItem
 import ru.bratusev.kinopoisk.presentation.items.FilmItemUI
 
-fun filmItemAdapterDelegates(onItemClick: (FilmItemUI) -> Unit) =
+fun filmItemAdapterDelegates(onItemClick: (String) -> Unit) =
     adapterDelegateViewBinding<FilmItemUI, BaseItem, ItemFilmBinding>(
         { layoutInflater, root -> ItemFilmBinding.inflate(layoutInflater, root, false) },
     ) {
-        itemView.setOnClickListener { onItemClick(item) }
+        itemView.setOnClickListener { onItemClick(item.itemId) }
         bind {
             with(binding) {
                 Glide
