@@ -5,4 +5,6 @@ sealed class LoginEvent {
         val login: String,
         val password: String,
     ) : LoginEvent()
+
+    data object OnFragmentStart : LoginEvent()
 }

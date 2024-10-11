@@ -1,9 +1,7 @@
 package ru.bratusev.data.storage.local
 
-import ru.bratusev.data.model.UserDTO
-
 interface UserStorage {
-    fun saveUser(userDTO: UserDTO)
+    fun saveUser(user: String)
 
-    fun getUser(): UserDTO
+    fun getUser(): String
 }
