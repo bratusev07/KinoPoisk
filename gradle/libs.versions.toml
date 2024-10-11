@@ -2,6 +2,7 @@
 adapterdelegates4KotlinDsl = "4.3.2"
 agp = "8.5.2"
 converterGson = "2.5.0"
+desugar_jdk_libs = "2.1.2"
 glideVersion = "4.16.0"
 hiltAndroid = "2.51.1"
 koin = "3.4.2"
@@ -37,6 +38,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRunt
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayoutVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 github-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }

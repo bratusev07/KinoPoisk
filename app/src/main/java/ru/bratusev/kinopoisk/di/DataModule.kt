@@ -2,11 +2,14 @@ package ru.bratusev.kinopoisk.di
 
 import android.content.Context
 import androidx.room.Room
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import ru.bratusev.data.converter.LocalDateTimeConverter
 import ru.bratusev.data.repository.FilmRepositoryImpl
 import ru.bratusev.data.repository.UserRepositoryImpl
 import ru.bratusev.data.storage.local.FilmStorageImpl
@@ -19,6 +22,7 @@ import ru.bratusev.data.storage.remote.RemoteFilmStorageImpl
 import ru.bratusev.data.storage.remote.common.RetrofitServices
 import ru.bratusev.domain.repository.FilmRepository
 import ru.bratusev.domain.repository.UserRepository
+import java.time.LocalDateTime
 import javax.inject.Singleton
 
 @Module
@@ -38,7 +42,10 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(userStorage: UserStorage): UserRepository = UserRepositoryImpl(userStorage)
+    fun provideUserRepository(
+        userStorage: UserStorage,
+        gson: Gson,
+    ): UserRepository = UserRepositoryImpl(userStorage, gson)
 
     @Provides
     @Singleton
@@ -58,4 +65,8 @@ object DataModule {
         Room
             .databaseBuilder(context, FilmDataBase::class.java, "films.db")
             .build()
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson = GsonBuilder().registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeConverter()).create()
 }

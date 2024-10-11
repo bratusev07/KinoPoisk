@@ -7,4 +7,29 @@
     <string name="frames">Кадры</string>
     <string name="description_text">Здесь будет описание, если его добавят на KinoPoisk</string>
     <string name="keyword">Поиск\n</string>
+
+    <plurals name="minutes">
+        <item quantity="one">Последний вход был %d минуту назад</item>
+        <item quantity="two">Последний вход был %d минуты назад</item>
+        <item quantity="few">Последний вход был %d минуты назад</item>
+        <item quantity="many">Последний вход был %d минут назад</item>
+        <item quantity="other">Последний вход был %d минут назад</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">Последний вход был %d час назад</item>
+        <item quantity="two">Последний вход был %d часа назад</item>
+        <item quantity="few">Последний вход был %d часа назад</item>
+        <item quantity="many">Последний вход был %d часов назад</item>
+        <item quantity="other">Последний вход был %d часов назад</item>
+    </plurals>
+
+    <plurals name="days">
+        <item quantity="one">Последний вход был %d день назад</item>
+        <item quantity="two">Последний вход был %d дня назад</item>
+        <item quantity="few">Последний вход был %d дня назад</item>
+        <item quantity="many">Последний вход был %d дней назад</item>
+        <item quantity="other">Последний вход был %d дней назад</item>
+    </plurals>
+
 </resources>
