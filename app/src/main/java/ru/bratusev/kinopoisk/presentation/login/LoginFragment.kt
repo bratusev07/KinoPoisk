@@ -7,9 +7,13 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentLoginBinding
 
@@ -26,6 +30,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         super.onViewCreated(view, savedInstanceState)
         configureViews()
         setObservers()
+        vm.handleEvent(LoginEvent.OnFragmentStart)
     }
 
     private fun setObservers() {
@@ -34,6 +39,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 is LoginLabel.GoToNext -> navigateToSearchFragment()
                 is LoginLabel.ShowPasswordAlert -> showAlert(it.message)
             }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            vm.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    viewBinding.textLastLoginTime.text = it.lastLoginTime
+                }
         }
     }
 

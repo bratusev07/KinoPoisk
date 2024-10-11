@@ -23,11 +23,12 @@ class LoginUseCase(
 
     private fun checkUserData(userData: UserData): Boolean {
         val registeredUser = userRepository.getUserData()
-        if (registeredUser.login.isEmpty()) {
+        if (registeredUser == null ||
+            (registeredUser.login == userData.login && registeredUser.password == userData.password)
+        ) {
             userRepository.saveUserData(userData)
             return true
         }
-        if (registeredUser.login == userData.login && registeredUser.password == userData.password) return true
         return false
     }
 }

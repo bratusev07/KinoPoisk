@@ -10,6 +10,7 @@ import ru.bratusev.domain.usecase.GetFilmByIdUseCase
 import ru.bratusev.domain.usecase.GetFilmByKeywordUseCase
 import ru.bratusev.domain.usecase.GetFilmsUseCase
 import ru.bratusev.domain.usecase.GetFramesUseCase
+import ru.bratusev.domain.usecase.GetLoginTimeUseCase
 import ru.bratusev.domain.usecase.LoginUseCase
 import javax.inject.Singleton
 
@@ -27,6 +28,10 @@ object DomainModule {
     @Provides
     @Singleton
     fun provideLoginUseCase(userRepository: UserRepository): LoginUseCase = LoginUseCase(userRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetLoginTimeUseCase(userRepository: UserRepository): GetLoginTimeUseCase = GetLoginTimeUseCase(userRepository)
 
     @Provides
     @Singleton

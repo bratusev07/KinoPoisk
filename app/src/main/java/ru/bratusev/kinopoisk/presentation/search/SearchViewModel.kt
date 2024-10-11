@@ -183,8 +183,11 @@ class SearchViewModel
 
         private fun handleOnClickFilmItem(filmId: String) {
             val film = getFilmByItemId(filmId)
-            if (film != null) _uiLabels.value = SearchLabel.GoToNext(film)
-            else _uiLabels.value = SearchLabel.ShowToast("Что-то пошло не так, попробуйте позже")
+            if (film != null) {
+                _uiLabels.value = SearchLabel.GoToNext(film)
+            } else {
+                _uiLabels.value = SearchLabel.ShowToast("Что-то пошло не так, попробуйте позже")
+            }
         }
 
         private fun getFilmByItemId(itemId: String): FilmArgs? =
