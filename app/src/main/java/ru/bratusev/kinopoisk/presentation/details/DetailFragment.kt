@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -21,7 +22,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentDetailBinding
+import ru.bratusev.kinopoisk.presentation.decorator.Gap
+import ru.bratusev.kinopoisk.presentation.decorator.ItemDividerDrawer
 import ru.bratusev.kinopoisk.presentation.items.FilmArgs
+import ru.surfstudio.android.recycler.decorator.Decorator
 
 @AndroidEntryPoint
 class DetailFragment : Fragment(R.layout.fragment_detail) {
@@ -95,6 +99,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         viewBinding.recyclerFrames.apply {
             layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             adapter = frameAdapter
+            addItemDecoration(frameItemUIDecorator)
         }
     }
 

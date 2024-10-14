@@ -107,6 +107,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = filmAdapter
             addOnScrollListener(onScroll)
+            addItemDecoration(filmItemUIDecorator)
         }
     }
 

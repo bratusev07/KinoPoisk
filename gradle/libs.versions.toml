@@ -20,6 +20,7 @@ constraintlayout = "2.1.4"
 jetbrainsKotlinJvm = "1.9.0"
 navigationFragmentKtx = "2.8.1"
 navigationUiKtx = "2.8.1"
+recyclerDecorator = "1.0.1"
 retrofit = "2.9.0"
 roomRuntime = "2.6.1"
 swiperefreshlayoutVersion = "1.1.0"
@@ -52,6 +53,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+recycler-decorator = { module = "ru.surfstudio.android:recycler-decorator", version.ref = "recyclerDecorator" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 viewbindingpropertydelegate-full = { module = "com.github.kirich1409:viewbindingpropertydelegate-full", version.ref = "viewbindingpropertydelegateFull" }
 viewbindingpropertydelegate-noreflection = { module = "com.github.kirich1409:viewbindingpropertydelegate-noreflection", version.ref = "viewbindingpropertydelegateFull" }
