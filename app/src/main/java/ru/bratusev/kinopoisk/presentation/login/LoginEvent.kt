@@ -7,4 +7,6 @@ sealed class LoginEvent {
     ) : LoginEvent()
 
     data object OnFragmentStart : LoginEvent()
+
+    data object OnClickBack : LoginEvent()
 }

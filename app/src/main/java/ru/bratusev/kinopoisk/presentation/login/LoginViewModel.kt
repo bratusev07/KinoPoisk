@@ -95,6 +95,7 @@ class LoginViewModel
             when (event) {
                 is LoginEvent.OnClickLogin -> handleLoginEvent(event.login, event.password)
                 is LoginEvent.OnFragmentStart -> getLoginTime()
+                LoginEvent.OnClickBack -> _uiLabels.value = LoginLabel.OnBackClick
             }
         }
 
