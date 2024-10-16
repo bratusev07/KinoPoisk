@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.bratusev.kinopoisk.R
 import ru.bratusev.kinopoisk.databinding.FragmentLoginBinding
+import ru.bratusev.kinopoisk.presentation.search.SearchEvent
 
 @AndroidEntryPoint
 class LoginFragment : Fragment(R.layout.fragment_login) {
@@ -38,6 +40,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             when (it) {
                 is LoginLabel.GoToNext -> navigateToSearchFragment()
                 is LoginLabel.ShowPasswordAlert -> showAlert(it.message)
+                LoginLabel.OnBackClick -> onBackPress()
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -49,7 +52,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
+    private fun onBackPress() {
+
+    }
+
     private fun configureViews() {
+        setupBackPressHandler()
         viewBinding.buttonLogin.setOnClickListener {
             vm.handleEvent(
                 LoginEvent.OnClickLogin(
@@ -66,6 +74,17 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         } catch (e: RuntimeException) {
             Log.e("DetailFragment", e.message.toString())
         }
+    }
+
+    private fun setupBackPressHandler() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    vm.handleEvent(LoginEvent.OnClickBack)
+                }
+            },
+        )
     }
 
     private fun showAlert(message: String) {
